@@ -9,7 +9,11 @@
   "default_agent": "general",
   // Shared system prompt base — always injected into every agent session.
   // Agent-specific persona/loop/rules live in ./agents/<name>.md.
-  "instructions": ["./kortix-system.md"],
+  // Donna fork: ./donna-system.md is layered AFTER kortix-system.md so its
+  // identity (Donna), language (forced PT-BR), and deployment posture
+  // (internal-tool, no billing) override the defaults without touching
+  // the upstream technical context — kortix-system.md stays mergeable.
+  "instructions": ["./kortix-system.md", "./donna-system.md"],
   "agent": {
     "build": { "disable": true },
     "plan": { "disable": true },
