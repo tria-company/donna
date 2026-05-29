@@ -32,10 +32,10 @@ export function TunnelDetail({ tunnelId }: TunnelDetailProps) {
   if (!connection) {
     return (
       <div className="p-6">
-        <p className="text-sm text-muted-foreground">Tunnel connection not found.</p>
+        <p className="text-sm text-muted-foreground">Conexão Donna Connect não encontrada.</p>
         <Button variant="outline" size="sm" className="mt-2" onClick={() => router.push('/tunnel')}>
           <ArrowLeft className="h-3.5 w-3.5 mr-1" />
-          Back to tunnels
+          Voltar para Donna Connect
         </Button>
       </div>
     );

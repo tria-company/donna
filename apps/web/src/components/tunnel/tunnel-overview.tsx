@@ -333,7 +333,7 @@ export function TunnelOverview() {
         <PageHeader icon={Cable}>
           <div className="space-y-2 sm:space-y-4">
             <div className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">
-              <span className="text-primary">Tunnel</span>
+              <span className="text-primary">Donna Connect</span>
             </div>
           </div>
         </PageHeader>
