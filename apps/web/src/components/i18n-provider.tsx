@@ -7,14 +7,14 @@ import { detectBestLocale } from '@/lib/utils/geo-detection';
 import { useAuth } from '@/components/AuthProvider';
 import type { User } from '@supabase/supabase-js';
 
-// Preload default translations synchronously for immediate render
-// This prevents the loading spinner from blocking FCP
-import defaultTranslations from '../../translations/en.json';
+// Preload default translations synchronously for immediate render.
+// Donna fork: pre-bundle PT-BR so the internal-tool first paint is in pt.
+import defaultTranslations from '../../translations/pt.json';
 
 async function getTranslations(locale: Locale) {
   try {
-    // Return cached default translations immediately for English
-    if (locale === 'en') {
+    // Return cached default translations immediately for the bundled locale (pt).
+    if (locale === 'pt') {
       return defaultTranslations;
     }
     return (await import(`../../translations/${locale}.json`)).default;
