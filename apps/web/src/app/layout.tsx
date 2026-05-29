@@ -113,7 +113,7 @@ export default async function RootLayout({
   const runtimeEnv = getServerPublicEnv();
 
   return (
-    <html lang="en" translate="no" suppressHydrationWarning className={`notranslate ${lato.variable} ${roobert.variable} ${roobertMono.variable}`}>
+    <html lang="pt" translate="no" suppressHydrationWarning className={`notranslate ${lato.variable} ${roobert.variable} ${roobertMono.variable}`}>
       <head>
         {/* Runtime config — evaluated at request time via connection() above.
             Docker images get correct env vars regardless of build-time defaults. */}
