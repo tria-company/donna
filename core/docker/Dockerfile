@@ -159,6 +159,7 @@ RUN apt-get update \
         texlive-latex-recommended \
         tesseract-ocr \
         tesseract-ocr-eng \
+        tesseract-ocr-por \
         zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
