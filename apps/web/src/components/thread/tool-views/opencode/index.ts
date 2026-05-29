@@ -1,5 +1,5 @@
 /**
- * OpenCode ToolView components for KortixComputer.
+ * OpenCode ToolView components for DonnaComputer.
  *
  * These are registered in the ToolViewRegistry under the "oc-" prefix
  * to avoid collision with AgentPress tool names.
@@ -18,7 +18,7 @@ export { OcImageGenToolView } from './OcImageGenToolView';
 export { OcShowUserToolView } from './OcShowUserToolView';
 export { OcApplyPatchToolView } from './OcApplyPatchToolView';
 export { OcTaskToolView } from './OcTaskToolView';
-export { OcKortixTaskToolView } from './OcKortixTaskToolView';
+export { OcDonnaTaskToolView } from './OcDonnaTaskToolView';
 export { OcTodoToolView } from './OcTodoToolView';
 export { OcGenericToolView } from './OcGenericToolView';
 export { OcQuestionToolView } from './OcQuestionToolView';
@@ -87,7 +87,7 @@ import { OcConnectorGetToolView } from './OcConnectorGetToolView';
 import { OcConnectorSetupToolView } from './OcConnectorSetupToolView';
 import { OcTriggersToolView } from './OcTriggersToolView';
 import { OcSessionStatsToolView } from './OcSessionStatsToolView';
-import { OcKortixTaskToolView } from './OcKortixTaskToolView';
+import { OcDonnaTaskToolView } from './OcDonnaTaskToolView';
 
 /**
  * Registry entries for OpenCode tools.
@@ -155,64 +155,64 @@ export const ocToolViewRegistrations: Record<string, ToolViewComponent> = {
   'oc-apply_patch': OcApplyPatchToolView,
 
   // Agent task tools (unified system)
-  'oc-agent_task': OcKortixTaskToolView,
-  'oc-agent-task': OcKortixTaskToolView,
-  'agent_task': OcKortixTaskToolView,
-  'agent-task': OcKortixTaskToolView,
-  'oc-agent_task_update': OcKortixTaskToolView,
-  'oc-agent-task-update': OcKortixTaskToolView,
-  'agent_task_update': OcKortixTaskToolView,
-  'agent-task-update': OcKortixTaskToolView,
-  'oc-agent_task_list': OcKortixTaskToolView,
-  'oc-agent-task-list': OcKortixTaskToolView,
-  'agent_task_list': OcKortixTaskToolView,
-  'agent-task-list': OcKortixTaskToolView,
-  'oc-agent_task_get': OcKortixTaskToolView,
-  'oc-agent-task-get': OcKortixTaskToolView,
-  'agent_task_get': OcKortixTaskToolView,
-  'agent-task-get': OcKortixTaskToolView,
-  'oc-task_create': OcKortixTaskToolView,
-  'oc-task-create': OcKortixTaskToolView,
-  'task_create': OcKortixTaskToolView,
-  'task-create': OcKortixTaskToolView,
-  'oc-task_update': OcKortixTaskToolView,
-  'oc-task-update': OcKortixTaskToolView,
-  'task_update': OcKortixTaskToolView,
-  'task-update': OcKortixTaskToolView,
-  'oc-task_list': OcKortixTaskToolView,
-  'oc-task-list': OcKortixTaskToolView,
-  'task_list': OcKortixTaskToolView,
-  'task-list': OcKortixTaskToolView,
-  'oc-task_get': OcKortixTaskToolView,
-  'oc-task-get': OcKortixTaskToolView,
-  'task_get': OcKortixTaskToolView,
-  'task-get': OcKortixTaskToolView,
+  'oc-agent_task': OcDonnaTaskToolView,
+  'oc-agent-task': OcDonnaTaskToolView,
+  'agent_task': OcDonnaTaskToolView,
+  'agent-task': OcDonnaTaskToolView,
+  'oc-agent_task_update': OcDonnaTaskToolView,
+  'oc-agent-task-update': OcDonnaTaskToolView,
+  'agent_task_update': OcDonnaTaskToolView,
+  'agent-task-update': OcDonnaTaskToolView,
+  'oc-agent_task_list': OcDonnaTaskToolView,
+  'oc-agent-task-list': OcDonnaTaskToolView,
+  'agent_task_list': OcDonnaTaskToolView,
+  'agent-task-list': OcDonnaTaskToolView,
+  'oc-agent_task_get': OcDonnaTaskToolView,
+  'oc-agent-task-get': OcDonnaTaskToolView,
+  'agent_task_get': OcDonnaTaskToolView,
+  'agent-task-get': OcDonnaTaskToolView,
+  'oc-task_create': OcDonnaTaskToolView,
+  'oc-task-create': OcDonnaTaskToolView,
+  'task_create': OcDonnaTaskToolView,
+  'task-create': OcDonnaTaskToolView,
+  'oc-task_update': OcDonnaTaskToolView,
+  'oc-task-update': OcDonnaTaskToolView,
+  'task_update': OcDonnaTaskToolView,
+  'task-update': OcDonnaTaskToolView,
+  'oc-task_list': OcDonnaTaskToolView,
+  'oc-task-list': OcDonnaTaskToolView,
+  'task_list': OcDonnaTaskToolView,
+  'task-list': OcDonnaTaskToolView,
+  'oc-task_get': OcDonnaTaskToolView,
+  'oc-task-get': OcDonnaTaskToolView,
+  'task_get': OcDonnaTaskToolView,
+  'task-get': OcDonnaTaskToolView,
 
   // Legacy agent tools (backwards compat for old sessions)
-  'oc-task': OcKortixTaskToolView,
-  'task': OcKortixTaskToolView,
-  'oc-agent_spawn': OcKortixTaskToolView,
-  'agent_spawn': OcKortixTaskToolView,
-  'agent-spawn': OcKortixTaskToolView,
-  'oc-agent_message': OcKortixTaskToolView,
-  'agent_message': OcKortixTaskToolView,
-  'agent-message': OcKortixTaskToolView,
-  'oc-agent_stop': OcKortixTaskToolView,
-  'agent_stop': OcKortixTaskToolView,
-  'agent-stop': OcKortixTaskToolView,
-  'oc-agent_status': OcKortixTaskToolView,
-  'agent_status': OcKortixTaskToolView,
-  'agent-status': OcKortixTaskToolView,
+  'oc-task': OcDonnaTaskToolView,
+  'task': OcDonnaTaskToolView,
+  'oc-agent_spawn': OcDonnaTaskToolView,
+  'agent_spawn': OcDonnaTaskToolView,
+  'agent-spawn': OcDonnaTaskToolView,
+  'oc-agent_message': OcDonnaTaskToolView,
+  'agent_message': OcDonnaTaskToolView,
+  'agent-message': OcDonnaTaskToolView,
+  'oc-agent_stop': OcDonnaTaskToolView,
+  'agent_stop': OcDonnaTaskToolView,
+  'agent-stop': OcDonnaTaskToolView,
+  'oc-agent_status': OcDonnaTaskToolView,
+  'agent_status': OcDonnaTaskToolView,
+  'agent-status': OcDonnaTaskToolView,
 
   // Session spawning (legacy — routed to unified renderer)
-  'oc-session_spawn': OcKortixTaskToolView,
-  'oc-session-spawn': OcKortixTaskToolView,
-  'session_spawn': OcKortixTaskToolView,
-  'session-spawn': OcKortixTaskToolView,
-  'oc-session_start_background': OcKortixTaskToolView,
-  'oc-session-start-background': OcKortixTaskToolView,
-  'session_start_background': OcKortixTaskToolView,
-  'session-start-background': OcKortixTaskToolView,
+  'oc-session_spawn': OcDonnaTaskToolView,
+  'oc-session-spawn': OcDonnaTaskToolView,
+  'session_spawn': OcDonnaTaskToolView,
+  'session-spawn': OcDonnaTaskToolView,
+  'oc-session_start_background': OcDonnaTaskToolView,
+  'oc-session-start-background': OcDonnaTaskToolView,
+  'session_start_background': OcDonnaTaskToolView,
+  'session-start-background': OcDonnaTaskToolView,
 
   // Todo / task management
   'oc-todowrite': OcTodoToolView,

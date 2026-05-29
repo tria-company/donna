@@ -147,7 +147,7 @@ import {
 } from '@/components/ui/definition-list';
 import { InlineMeta } from '@/components/ui/inline-meta';
 import { EmptyState } from '@/components/ui/empty-state';
-import { IconInbox } from '@/components/ui/kortix-icons';
+import { IconInbox } from '@/components/ui/donna-icons';
 import { PageHeader } from '@/components/ui/page-header';
 import { SpotlightCard } from '@/components/ui/spotlight-card';
 import { PageSearchBar } from '@/components/ui/page-search-bar';

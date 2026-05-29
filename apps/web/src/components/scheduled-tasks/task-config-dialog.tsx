@@ -32,7 +32,7 @@ import { toast } from 'sonner';
 import { ScheduleBuilder } from './schedule-builder';
 import { cn } from '@/lib/utils';
 import { featureFlags } from '@/lib/feature-flags';
-import { useTickets, useColumns, useProjectAgents } from '@/hooks/kortix/use-kortix-tickets';
+import { useTickets, useColumns, useProjectAgents } from '@/hooks/donna/use-donna-tickets';
 
 // Shared selectors from ChatInput (same as used in channels)
 import { AgentSelector, flattenModels } from '@/components/session/session-chat-input';

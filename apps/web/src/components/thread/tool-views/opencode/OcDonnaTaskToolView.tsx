@@ -51,7 +51,7 @@ function getToolName(toolCall: any): string {
   return name.replace(/^oc-/, '').replace(/-/g, '_');
 }
 
-export function OcKortixTaskToolView({
+export function OcDonnaTaskToolView({
   toolCall,
   toolResult,
   assistantTimestamp,

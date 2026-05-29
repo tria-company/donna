@@ -23,7 +23,7 @@ import {
   useMilestones,
   type Milestone,
   type MilestoneStatus,
-} from '@/hooks/kortix/use-milestones';
+} from '@/hooks/donna/use-milestones';
 import { MilestoneDialog } from './milestone-dialog';
 
 export function MilestonesTab({ projectId }: { projectId: string }) {

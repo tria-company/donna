@@ -18,7 +18,7 @@ import { useSandboxProxy } from '@/hooks/use-sandbox-proxy';
 import { useFilePreviewStore } from '@/stores/file-preview-store';
 import { wrapChildrenWithPaths } from '@/components/common/clickable-path';
 import { looksLikeFilePath as sharedLooksLikeFilePath } from '@/lib/utils/path-detection';
-import { stripKortixSystemTags } from '@/lib/utils/kortix-system-tags';
+import { stripDonnaSystemTags } from '@/lib/utils/donna-system-tags';
 import { toast } from '@/lib/toast';
 
 // ---------------------------------------------------------------------------
@@ -962,7 +962,7 @@ export const UnifiedMarkdown = React.memo<UnifiedMarkdownProps>(({
   }
 
   // Strip <kortix_system> tags, then auto-link URLs
-  const finalContent = autoLinkUrls(stripKortixSystemTags(safeContent));
+  const finalContent = autoLinkUrls(stripDonnaSystemTags(safeContent));
 
   return (
     <div

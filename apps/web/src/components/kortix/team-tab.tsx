@@ -58,7 +58,7 @@ import {
   type ProjectAgent,
   type ExecutionMode,
   type ToolGroup,
-} from '@/hooks/kortix/use-kortix-tickets';
+} from '@/hooks/donna/use-donna-tickets';
 import { useOpenCodeProviders } from '@/hooks/opencode/use-opencode-sessions';
 import { flattenModels, type FlatModel } from '@/components/session/session-chat-input';
 import {

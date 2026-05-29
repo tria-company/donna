@@ -1,13 +1,13 @@
 /**
- * Adapter: OpenCode SDK ToolPart → KortixComputer ToolCallInput
+ * Adapter: OpenCode SDK ToolPart → DonnaComputer ToolCallInput
  *
  * Converts OpenCode session messages into the ToolCallInput[] format
- * that KortixComputer expects, enabling the computer panel to display
+ * that DonnaComputer expects, enabling the computer panel to display
  * OpenCode tool calls.
  */
 
 import type { MessageWithParts, ToolPart, ToolState } from '@/ui';
-import type { ToolCallInput } from '@/components/thread/kortix-computer/KortixComputer';
+import type { ToolCallInput } from '@/components/thread/donna-computer/DonnaComputer';
 import type { ToolCallData, ToolResultData } from '@/components/thread/tool-views/types';
 
 /**
@@ -90,7 +90,7 @@ function adaptToolPart(part: ToolPart): ToolCallInput {
 
 /**
  * Extract all ToolParts from OpenCode messages and convert them to
- * the ToolCallInput[] format used by KortixComputer.
+ * the ToolCallInput[] format used by DonnaComputer.
  */
 export function adaptMessagesToToolCalls(messages: MessageWithParts[]): ToolCallInput[] {
   const toolCalls: ToolCallInput[] = [];
@@ -109,7 +109,7 @@ export function adaptMessagesToToolCalls(messages: MessageWithParts[]): ToolCall
 
 /**
  * Map OpenCode session busy state to the agentStatus string
- * that KortixComputer expects.
+ * that DonnaComputer expects.
  */
 export function adaptAgentStatus(isBusy: boolean): 'idle' | 'running' {
   return isBusy ? 'running' : 'idle';

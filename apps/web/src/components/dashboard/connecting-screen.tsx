@@ -18,7 +18,7 @@ import {
   WifiOff,
 } from 'lucide-react';
 
-import { KortixLogo } from '@/components/sidebar/kortix-logo';
+import { DonnaLogo } from '@/components/sidebar/donna-logo';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { toast } from '@/lib/toast';
@@ -475,7 +475,7 @@ function ProvisioningView({
 
   return (
     <>
-      <KortixLogo size={40} />
+      <DonnaLogo size={40} />
 
       <p className="text-[13px] font-normal text-foreground/55 max-w-[320px] truncate">
         {label}

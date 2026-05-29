@@ -4,13 +4,13 @@
  * Backend plugins wrap internal content (session context, memory, orchestrator
  * state, PTY output, etc.) in <kortix_system type="..." source="..."> tags.
  *
- * - stripKortixSystemTags: removes ALL tags before markdown rendering
+ * - stripDonnaSystemTags: removes ALL tags before markdown rendering
  * - extractSessionReport: parses session-report tags into structured data
  */
 
 const KORTIX_SYSTEM_RE = /<kortix_system[^>]*>[\s\S]*?<\/kortix_system>/gi
 
-export function stripKortixSystemTags(text: string): string {
+export function stripDonnaSystemTags(text: string): string {
 	if (!text) return ""
 	return text.replace(KORTIX_SYSTEM_RE, "").trim()
 }
@@ -53,7 +53,7 @@ export function extractSessionReport(text: string): SessionReport | null {
  */
 export function isKortixSystemOnly(text: string): boolean {
 	if (!text) return false
-	return stripKortixSystemTags(text).length === 0
+	return stripDonnaSystemTags(text).length === 0
 }
 
 // ── System message parsing for inline rendering ─────────────────────────────

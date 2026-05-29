@@ -21,7 +21,7 @@ import { cn } from '@/lib/utils';
 import { MentionMarkdown } from '@/components/kortix/mention-markdown';
 import { MentionTextarea } from '@/components/kortix/mention-textarea';
 import { useCurrentUserAvatarProps } from '@/components/kortix/agent-avatar';
-import type { ProjectAgent } from '@/hooks/kortix/use-kortix-tickets';
+import type { ProjectAgent } from '@/hooks/donna/use-donna-tickets';
 
 export interface MarkdownFieldProps {
   value: string;

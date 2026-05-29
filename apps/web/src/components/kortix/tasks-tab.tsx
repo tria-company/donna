@@ -16,14 +16,14 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EmptyState } from '@/components/ui/empty-state';
-import { IconInbox } from '@/components/ui/kortix-icons';
+import { IconInbox } from '@/components/ui/donna-icons';
 import { Button } from '@/components/ui/button';
 import { TaskKanban } from '@/components/kortix/task-kanban';
 import { TaskList } from '@/components/kortix/task-list';
 import type {
   KortixTask,
   KortixTaskStatus,
-} from '@/hooks/kortix/use-kortix-tasks';
+} from '@/hooks/donna/use-donna-tasks';
 
 type TasksView = 'list' | 'kanban';
 

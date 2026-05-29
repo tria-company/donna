@@ -72,7 +72,7 @@ import { useWorkspaceSearch, useFilesStore } from '@/features/files';
 import { useOpenCodeMessages } from '@/hooks/opencode/use-opencode-sessions';
 import { useMessageJumpStore } from '@/stores/message-jump-store';
 import { groupMessagesIntoTurns, isTextPart, type TextPart } from '@/ui';
-import { stripKortixSystemTags } from '@/lib/utils/kortix-system-tags';
+import { stripDonnaSystemTags } from '@/lib/utils/donna-system-tags';
 
 import { getFileIcon } from '@/features/files/components/file-icon';
 import type { FindMatch } from '@/features/files';
@@ -279,7 +279,7 @@ function MessagesPage({
       .map((turn) => {
         const textParts = turn.userMessage.parts.filter(isTextPart) as TextPart[];
         const raw = textParts.map((p) => p.text).join(' ');
-        const stripped = stripKortixSystemTags(raw).replace(/<[^>]+>/g, '').trim();
+        const stripped = stripDonnaSystemTags(raw).replace(/<[^>]+>/g, '').trim();
         return {
           id: turn.userMessage.info.id,
           text: stripped,

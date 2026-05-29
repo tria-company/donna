@@ -8,10 +8,10 @@ import { AppDock } from './Dock';
 import { PanelHeader } from './PanelHeader';
 import { ToolView } from '../../tool-views/wrapper';
 import { getUserFriendlyToolName, getToolIcon } from '@/components/thread/utils';
-import { ToolCallInput } from '../KortixComputer';
+import { ToolCallInput } from '../DonnaComputer';
 import { Project } from '@/types/project';
 
-import { ViewType } from '@/stores/kortix-computer-store';
+import { ViewType } from '@/stores/donna-computer-store';
 import { cn } from '@/lib/utils';
 import { useFileList, fileListKeys, useFileUpload, useFileMkdir, useFileDelete, useFileRename, useFilesStore, FileBrowser, FileViewer, FileHistoryPanel, downloadFile } from '@/features/files';
 import { DesktopContextMenu } from './DesktopContextMenu';

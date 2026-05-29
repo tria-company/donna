@@ -19,7 +19,7 @@ import {
   Trash2,
   MessageSquare,
 } from 'lucide-react';
-import { KortixLoader } from '@/components/ui/kortix-loader';
+import { DonnaLoader } from '@/components/ui/donna-loader';
 
 interface OtpVerificationProps {
   phoneNumber?: string;
@@ -213,7 +213,7 @@ export function OtpVerification({
               >
                 {isLoading ? (
                   <>
-                    <KortixLoader size="small" />
+                    <DonnaLoader size="small" />
                     {t('verifying')}
                   </>
                 ) : (
@@ -248,7 +248,7 @@ export function OtpVerification({
                 >
                   {isLoading ? (
                     <>
-                      <KortixLoader size="small" />
+                      <DonnaLoader size="small" />
                       {t('sending')}
                     </>
                   ) : (

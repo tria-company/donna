@@ -44,7 +44,7 @@ import {
   IconLoader,
   IconMore,
   IconUsers,
-} from '@/components/ui/kortix-icons';
+} from '@/components/ui/donna-icons';
 import { User } from 'lucide-react';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

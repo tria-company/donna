@@ -7680,7 +7680,7 @@ import {
   parseProjectSelectOutput,
   parseProjectCreateOutput,
   type ProjectEntry,
-} from '@/lib/utils/kortix-tool-output';
+} from '@/lib/utils/donna-tool-output';
 
 function ProjectListTool({ part, defaultOpen, forceOpen }: ToolProps) {
   const output = partOutput(part);
@@ -7845,7 +7845,7 @@ import {
   parseConnectorGetOutput,
   parseConnectorSetupOutput,
   type ConnectorEntry,
-} from '@/lib/utils/kortix-tool-output';
+} from '@/lib/utils/donna-tool-output';
 
 function ConnectorListTool({ part, defaultOpen, forceOpen }: ToolProps) {
   const input = partInput(part);

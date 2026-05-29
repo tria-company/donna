@@ -75,7 +75,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { KortixLoader } from '@/components/ui/kortix-loader';
+import { DonnaLoader } from '@/components/ui/donna-loader';
 import { AnimatedThinkingText } from '@/components/ui/animated-thinking-text';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -115,17 +115,17 @@ import { getClient } from '@/lib/opencode-sdk';
 import { playSound } from '@/lib/sounds';
 import { cn } from '@/lib/utils';
 import {
-  stripKortixSystemTags,
+  stripDonnaSystemTags,
   extractSessionReport,
   extractKortixSystemMessages,
   type SessionReport,
   type KortixSystemMessage,
-} from '@/lib/utils/kortix-system-tags';
+} from '@/lib/utils/donna-system-tags';
 import { SubSessionModal } from '@/components/session/sub-session-modal';
 import { ChatMinimap } from '@/components/session/chat-minimap';
 import { useMessageJumpStore } from '@/stores/message-jump-store';
 import { toast as sonnerToast } from 'sonner';
-import { useKortixComputerStore } from '@/stores/kortix-computer-store';
+import { useDonnaComputerStore } from '@/stores/donna-computer-store';
 import {
   useMessageQueueStore,
   selectSessionItems,
@@ -892,7 +892,7 @@ function stripSystemPtyText(text: string): string {
   // Only strip kortix_system tags (backend-internal metadata).
   // Notification XML is stripped later by parseSystemNotifications()
   // which runs last in the parsing pipeline.
-  return stripKortixSystemTags(text)
+  return stripDonnaSystemTags(text)
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 }
@@ -1274,7 +1274,7 @@ function isNotificationOnlyMessage(parts: Part[]): boolean {
   if (textParts.length === 0) return false;
   const raw = textParts.map((p) => p.text || '').join('\n');
   const { cleanText, notifications } = parseSystemNotifications(
-    stripKortixSystemTags(raw),
+    stripDonnaSystemTags(raw),
   );
   return notifications.length > 0 && !cleanText.trim();
 }
@@ -1299,7 +1299,7 @@ function NotificationTurn({ turn }: { turn: Turn }) {
   }, [turn.userMessage.parts]);
 
   const { notifications } = useMemo(
-    () => parseSystemNotifications(stripKortixSystemTags(rawText)),
+    () => parseSystemNotifications(stripDonnaSystemTags(rawText)),
     [rawText],
   );
 
@@ -1625,7 +1625,7 @@ function UserMessageRow({
   commandInfo?: { name: string; args?: string };
   commands?: Command[];
 }) {
-  const openFileInComputer = useKortixComputerStore(
+  const openFileInComputer = useDonnaComputerStore(
     (s) => s.openFileInComputer,
   );
   const openPreview = useFilePreviewStore((s) => s.openPreview);
@@ -3069,7 +3069,7 @@ function SessionTurn({
         isTextPart(p) &&
         !(p as TextPart).synthetic &&
         !(p as any).ignored &&
-        !!stripKortixSystemTags((p as TextPart).text || '').trim(),
+        !!stripDonnaSystemTags((p as TextPart).text || '').trim(),
     );
     if (hasVisibleText) return true;
     // Has any attachment (image/PDF)?
@@ -3396,7 +3396,7 @@ function SessionTurn({
         <div className="flex items-center gap-2 mt-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/kortix-logomark-white.svg"
+            src="/donna-logomark-white.svg"
             alt="Kortix"
             className="dark:invert-0 invert flex-shrink-0 h-[14px] w-auto"
           />
@@ -3678,7 +3678,7 @@ function SessionTurn({
           <div className="flex items-center gap-2 mt-3 mb-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/kortix-logomark-white.svg"
+              src="/donna-logomark-white.svg"
               alt="Kortix"
               className="dark:invert-0 invert flex-shrink-0 h-[14px] w-auto"
             />
@@ -3967,9 +3967,9 @@ export function SessionChat({
     window.getSelection()?.removeAllRanges();
   }, [selectionPopup]);
 
-  // ---- KortixComputer side panel ----
+  // ---- DonnaComputer side panel ----
   const { isSidePanelOpen, setIsSidePanelOpen, openFileInComputer } =
-    useKortixComputerStore();
+    useDonnaComputerStore();
   const openPreview = useFilePreviewStore((s) => s.openPreview);
   const handleTogglePanel = useCallback(() => {
     setIsSidePanelOpen(!isSidePanelOpen);
@@ -5940,7 +5940,7 @@ export function SessionChat({
       {/* Content area — loading, not-found, or actual messages */}
       {isDataLoading ? (
         <div className="flex-1 flex items-center justify-center min-h-0">
-          <KortixLoader size="small" />
+          <DonnaLoader size="small" />
         </div>
       ) : isNotFound ? (
         <div className="flex-1 flex flex-col items-center justify-center min-h-0 gap-3 text-center px-6">
@@ -6045,7 +6045,7 @@ export function SessionChat({
                     <div className="flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src="/kortix-logomark-white.svg"
+                        src="/donna-logomark-white.svg"
                         alt="Kortix"
                         className="dark:invert-0 invert flex-shrink-0 h-[14px] w-auto"
                       />
@@ -6073,7 +6073,7 @@ export function SessionChat({
                     <div className="flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src="/kortix-logomark-white.svg"
+                        src="/donna-logomark-white.svg"
                         alt="Kortix"
                         className="dark:invert-0 invert flex-shrink-0 h-[14px] w-auto"
                       />
@@ -6152,7 +6152,7 @@ export function SessionChat({
                   <div className="flex items-center gap-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src="/kortix-logomark-white.svg"
+                      src="/donna-logomark-white.svg"
                       alt="Kortix"
                       className="dark:invert-0 invert flex-shrink-0 h-[14px] w-auto"
                     />

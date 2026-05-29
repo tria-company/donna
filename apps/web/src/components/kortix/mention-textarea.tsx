@@ -29,7 +29,7 @@ import {
   AgentAvatar,
   UserAvatar,
 } from '@/components/kortix/agent-avatar';
-import type { ProjectAgent } from '@/hooks/kortix/use-kortix-tickets';
+import type { ProjectAgent } from '@/hooks/donna/use-donna-tickets';
 
 // ─── Tokenizer ────────────────────────────────────────────────────────────
 //

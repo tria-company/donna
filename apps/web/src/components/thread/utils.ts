@@ -2,7 +2,7 @@
  * Thread utilities for rendering tool calls and messages
  */
 
-// Re-export shared utilities (used by KortixComputer Desktop/Dock)
+// Re-export shared utilities (used by DonnaComputer Desktop/Dock)
 export { getUserFriendlyToolName } from '@kortix/shared';
 
 // Re-export getToolIcon from frontend icon resolver

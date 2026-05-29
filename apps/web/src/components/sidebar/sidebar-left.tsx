@@ -35,7 +35,7 @@ import { useGlobalSandboxUpdate } from '@/hooks/platform/use-global-sandbox-upda
 import { useUpdateDialogStore } from '@/stores/update-dialog-store';
 
 import { UserMenu } from '@/components/sidebar/user-menu';
-import { KortixLogo } from '@/components/sidebar/kortix-logo';
+import { DonnaLogo } from '@/components/sidebar/donna-logo';
 import { ThreadIcon } from '@/components/sidebar/thread-icon';
 import {
   CurrentWorkspaceAvatar,
@@ -1265,7 +1265,7 @@ export function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) 
                 }, router);
                 if (isMobile) setOpenMobile(false);
               }} className="flex items-center justify-center group-hover/collapsed:hidden">
-                <KortixLogo
+                <DonnaLogo
                   variant="symbol"
                   size={20}
                   className="flex-shrink-0"
@@ -1288,7 +1288,7 @@ export function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) 
               }, router);
               if (isMobile) setOpenMobile(false);
             }} className="flex items-center">
-              <KortixLogo
+              <DonnaLogo
                 variant="logomark"
                 size={16}
                 className="flex-shrink-0"

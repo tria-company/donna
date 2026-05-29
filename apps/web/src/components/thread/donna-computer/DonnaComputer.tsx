@@ -13,10 +13,10 @@ import { useTranslations } from 'next-intl';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { useDocumentModalStore } from '@/stores/use-document-modal-store';
 import { 
-  useKortixComputerStore,
-  useKortixComputerPendingToolNavIndex,
-  useKortixComputerClearPendingToolNav,
-} from '@/stores/kortix-computer-store';
+  useDonnaComputerStore,
+  useDonnaComputerPendingToolNavIndex,
+  useDonnaComputerClearPendingToolNav,
+} from '@/stores/donna-computer-store';
 import { ToolCallData, ToolResultData } from '../tool-views/types';
 import { PanelHeader } from './components/PanelHeader';
 import { NavigationControls } from './components/NavigationControls';
@@ -33,7 +33,7 @@ export interface ToolCallInput {
   isSuccess?: boolean;
 }
 
-interface KortixComputerProps {
+interface DonnaComputerProps {
   isOpen: boolean;
   onClose: () => void;
   toolCalls: ToolCallInput[];
@@ -60,7 +60,7 @@ interface KortixComputerProps {
   sandboxId?: string;
   projectId?: string;
   sidePanelRef?: React.RefObject<any>;
-  /** When true, KortixComputer skips rendering its own PanelHeader (tabs are provided externally, e.g. by SessionLayout). */
+  /** When true, DonnaComputer skips rendering its own PanelHeader (tabs are provided externally, e.g. by SessionLayout). */
   hideTopBar?: boolean;
   /** Custom header rendered inside the main container, above the content. Used by SessionLayout to inject its own header row. */
   headerSlot?: React.ReactNode;
@@ -75,9 +75,9 @@ interface ToolCallSnapshot {
 
 type NavigationMode = 'live' | 'manual';
 
-const FLOATING_LAYOUT_ID = 'kortix-computer-float';
+const FLOATING_LAYOUT_ID = 'donna-computer-float';
 
-export const KortixComputer = memo(function KortixComputer({
+export const DonnaComputer = memo(function DonnaComputer({
   isOpen,
   onClose,
   toolCalls,
@@ -98,7 +98,7 @@ export const KortixComputer = memo(function KortixComputer({
   sidePanelRef,
   hideTopBar = false,
   headerSlot,
-}: KortixComputerProps) {
+}: DonnaComputerProps) {
   const t = useTranslations('thread');
   const [dots, setDots] = useState('');
   const [internalIndex, setInternalIndex] = useState(0);
@@ -119,10 +119,10 @@ export const KortixComputer = memo(function KortixComputer({
     setActiveView,
     isExpanded,
     toggleExpanded,
-  } = useKortixComputerStore();
+  } = useDonnaComputerStore();
   
-  const pendingToolNavIndex = useKortixComputerPendingToolNavIndex();
-  const clearPendingToolNav = useKortixComputerClearPendingToolNav();
+  const pendingToolNavIndex = useDonnaComputerPendingToolNavIndex();
+  const clearPendingToolNav = useDonnaComputerClearPendingToolNav();
 
   const currentViewRef = useRef(activeView);
 
@@ -140,7 +140,7 @@ export const KortixComputer = memo(function KortixComputer({
     const sandboxChanged = prevSandboxIdRef.current !== null && prevSandboxIdRef.current !== sandboxId && sandboxId !== null;
     
     if (projectChanged || sandboxChanged) {
-      console.log('[KortixComputer] Project or sandbox changed, resetting local state', { projectId, sandboxId });
+      console.log('[DonnaComputer] Project or sandbox changed, resetting local state', { projectId, sandboxId });
       // Reset local component state
       setInternalIndex(0);
       setNavigationMode('live');

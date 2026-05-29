@@ -3,7 +3,7 @@
 import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { KortixLoader } from '@/components/ui/kortix-loader';
+import { DonnaLoader } from '@/components/ui/donna-loader';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import Script from 'next/script';
 
@@ -154,7 +154,7 @@ function CheckoutContent() {
           </Card>
         ) : isLoading ? (
           <div className="flex flex-col items-center gap-4">
-            <KortixLoader size="xlarge" />
+            <DonnaLoader size="xlarge" />
             <p className="text-gray-600 text-sm">Loading secure checkout...</p>
           </div>
         ) : (
@@ -172,7 +172,7 @@ export default function CheckoutPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <KortixLoader size="large" forceTheme="light" />
+        <DonnaLoader size="large" forceTheme="light" />
       </div>
     }>
       <CheckoutContent />

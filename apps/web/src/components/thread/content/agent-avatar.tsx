@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { KortixLogo } from '@/components/sidebar/kortix-logo';
+import { DonnaLogo } from '@/components/sidebar/donna-logo';
 import { DynamicIcon } from 'lucide-react/dynamic';
 import { Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';

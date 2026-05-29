@@ -12,7 +12,7 @@ import {
   XCircle,
   type LucideIcon,
 } from 'lucide-react';
-import type { KortixTaskStatus } from '@/hooks/kortix/use-kortix-tasks';
+import type { KortixTaskStatus } from '@/hooks/donna/use-donna-tasks';
 
 export interface StatusMeta {
   icon: LucideIcon;

@@ -19,7 +19,7 @@
 import { useLayoutEffect, useMemo, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { UnifiedMarkdown } from '@/components/markdown';
-import type { ProjectAgent } from '@/hooks/kortix/use-kortix-tickets';
+import type { ProjectAgent } from '@/hooks/donna/use-donna-tickets';
 
 interface Props {
   content: string;

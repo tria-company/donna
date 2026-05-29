@@ -33,7 +33,7 @@ import {
   useReopenMilestone,
   useUpdateMilestone,
   type Milestone,
-} from '@/hooks/kortix/use-milestones';
+} from '@/hooks/donna/use-milestones';
 import { cn } from '@/lib/utils';
 import { CheckCircle2, XCircle, RotateCcw, Trash2, Loader2 } from 'lucide-react';
 

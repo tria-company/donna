@@ -51,7 +51,7 @@ import {
   type TicketColumn,
   type ProjectField,
   type ProjectAgent,
-} from '@/hooks/kortix/use-kortix-tickets';
+} from '@/hooks/donna/use-donna-tickets';
 import { COLUMN_ICONS, COLUMN_ICON_KEYS, defaultColumnIcon } from '@/components/kortix/ticket-board';
 
 type Panel = 'columns' | 'fields' | 'templates';

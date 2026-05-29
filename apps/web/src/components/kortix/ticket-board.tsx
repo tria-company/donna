@@ -62,10 +62,10 @@ import type {
   Ticket,
   TicketColumn,
   ProjectAgent,
-} from '@/hooks/kortix/use-kortix-tickets';
+} from '@/hooks/donna/use-donna-tickets';
 import { AgentAvatar, UserAvatar, useCurrentUserAvatarProps } from '@/components/kortix/agent-avatar';
 import { useTriggers, type Trigger } from '@/hooks/scheduled-tasks';
-import { useMilestones, type Milestone } from '@/hooks/kortix/use-milestones';
+import { useMilestones, type Milestone } from '@/hooks/donna/use-milestones';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Timer as TimerIcon, Webhook as WebhookIcon, Check } from 'lucide-react';
 

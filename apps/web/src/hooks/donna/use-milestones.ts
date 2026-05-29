@@ -17,7 +17,7 @@ import {
 } from '@tanstack/react-query';
 import { authenticatedFetch } from '@/lib/auth-token';
 import { useServerStore } from '@/stores/server-store';
-import type { Ticket } from './use-kortix-tickets';
+import type { Ticket } from './use-donna-tickets';
 
 export type MilestoneStatus = 'open' | 'closed' | 'cancelled';
 

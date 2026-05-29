@@ -37,7 +37,7 @@ import {
   useRevealCredential,
   useUpsertCredential,
   type CredentialItem,
-} from '@/hooks/kortix/use-credentials';
+} from '@/hooks/donna/use-credentials';
 import { relativeTime } from '@/lib/kortix/task-meta';
 
 // Env-var-style name validation — mirrors the server rule so we reject

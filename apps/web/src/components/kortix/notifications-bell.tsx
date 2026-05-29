@@ -31,7 +31,7 @@ import {
   type Ticket,
   type ProjectAgent,
   type ProjectNotification,
-} from '@/hooks/kortix/use-kortix-tickets';
+} from '@/hooks/donna/use-donna-tickets';
 
 export interface NotificationsBellProps {
   projectId: string;

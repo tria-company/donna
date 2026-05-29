@@ -30,7 +30,7 @@ import {
   CommandPopoverTrigger,
 } from '@/components/ui/command';
 import { EmptyState } from '@/components/ui/empty-state';
-import { IconDelete, IconInvite, IconLoader, IconUsers } from '@/components/ui/kortix-icons';
+import { IconDelete, IconInvite, IconLoader, IconUsers } from '@/components/ui/donna-icons';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import { UserRow } from '@/components/ui/user-row';
 

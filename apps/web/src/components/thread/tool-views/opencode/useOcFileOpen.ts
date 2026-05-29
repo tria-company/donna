@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useKortixComputerStore } from '@/stores/kortix-computer-store';
+import { useDonnaComputerStore } from '@/stores/donna-computer-store';
 import { getClient } from '@/lib/opencode-sdk';
 import { opencodeKeys } from '@/hooks/opencode/use-opencode-sessions';
 
@@ -153,7 +153,7 @@ async function discoverPrefixViaFileApi(absPath: string): Promise<string | null>
  * then tries each when converting absolute paths → project-relative paths.
  */
 export function useOcFileOpen() {
-  const openFileInComputer = useKortixComputerStore((s) => s.openFileInComputer);
+  const openFileInComputer = useDonnaComputerStore((s) => s.openFileInComputer);
   const queryClient = useQueryClient();
   const [prefixes, setPrefixes] = useState<string[]>(cachedPrefixes || []);
 

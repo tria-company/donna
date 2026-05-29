@@ -5,8 +5,8 @@ import { Suspense } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, CheckCircle, Clock, Wrench, Activity, Shield, Database, Globe, Zap } from 'lucide-react';
-import { KortixLoader } from '@/components/ui/kortix-loader';
-import { KortixLogo } from '@/components/sidebar/kortix-logo';
+import { DonnaLoader } from '@/components/ui/donna-loader';
+import { DonnaLogo } from '@/components/sidebar/donna-logo';
 import { useTechnicalIssueQuery } from '@/hooks/edge-flags';
 import { AnimatedBg } from '@/components/ui/animated-bg';
 
@@ -96,7 +96,7 @@ function StatusPageContent() {
         <AnimatedBg variant="hero" />
         <div className="relative z-10 flex flex-col items-center px-4 sm:px-6 pt-16 pb-8">
           <div className="flex flex-col items-center gap-6 text-center">
-            <KortixLogo size={32} />
+            <DonnaLogo size={32} />
             <div className="space-y-2">
               <h1 className="text-2xl font-bold tracking-tight text-foreground">
                 System Status
@@ -227,7 +227,7 @@ export default function StatusPage() {
     <Suspense
       fallback={
         <div className="min-h-screen flex items-center justify-center">
-          <KortixLoader size="large" />
+          <DonnaLoader size="large" />
         </div>
       }
     >

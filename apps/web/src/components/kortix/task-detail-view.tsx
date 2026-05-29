@@ -53,8 +53,8 @@ import {
   useApproveKortixTask,
   useDeleteKortixTask,
   type KortixTaskEvent,
-} from '@/hooks/kortix/use-kortix-tasks';
-import { useKortixProject } from '@/hooks/kortix/use-kortix-projects';
+} from '@/hooks/donna/use-donna-tasks';
+import { useKortixProject } from '@/hooks/donna/use-donna-projects';
 import { openTabAndNavigate } from '@/stores/tab-store';
 import { StatusPill } from '@/components/kortix/task-pills';
 import {
@@ -62,7 +62,7 @@ import {
   relativeTime,
   fullDate,
 } from '@/lib/kortix/task-meta';
-import type { KortixTaskStatus } from '@/hooks/kortix/use-kortix-tasks';
+import type { KortixTaskStatus } from '@/hooks/donna/use-donna-tasks';
 
 export interface TaskDetailViewProps {
   taskId: string | null;

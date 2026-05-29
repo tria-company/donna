@@ -53,7 +53,7 @@ import {
   type Command,
   type McpStatus,
 } from '@/hooks/opencode/use-opencode-sessions';
-import { useKortixConnectors, type KortixConnector } from '@/hooks/kortix/use-kortix-connectors';
+import { useDonnaConnectors, type KortixConnector } from '@/hooks/donna/use-donna-connectors';
 import { useSkills } from '@/features/skills/hooks';
 import { getSkillSource, type Skill } from '@/features/skills/types';
 import { openTabAndNavigate } from '@/stores/tab-store';
@@ -412,7 +412,7 @@ export default function WorkspacePage() {
   const { data: commands,  isLoading: lCommands  } = useOpenCodeCommands();
   const { data: toolIds,   isLoading: lTools     } = useOpenCodeToolIds();
   const { data: mcpStatus, isLoading: lMcp       } = useOpenCodeMcpStatus();
-  const { data: connectors, isLoading: lConnectors } = useKortixConnectors();
+  const { data: connectors, isLoading: lConnectors } = useDonnaConnectors();
 
   const isLoading = lAgents || lSkills || lCommands || lTools || lMcp || lConnectors;
 

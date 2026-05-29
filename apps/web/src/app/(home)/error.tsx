@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { AnimatedBg } from '@/components/ui/animated-bg';
-import { KortixLogo } from '@/components/sidebar/kortix-logo';
+import { DonnaLogo } from '@/components/sidebar/donna-logo';
 import * as Sentry from '@sentry/nextjs';
 
 export default function HomeError({
@@ -43,7 +43,7 @@ export default function HomeError({
         className="relative z-10 flex w-full max-w-[456px] flex-col items-center gap-6 sm:gap-8"
       >
         {/* Logo */}
-        <KortixLogo size={28} className="sm:w-8 sm:h-8" />
+        <DonnaLogo size={28} className="sm:w-8 sm:h-8" />
 
         {/* Error text art */}
         <div className="relative select-none">

@@ -18,7 +18,7 @@ export interface KortixConnector {
   updated_at: string;
 }
 
-export function useKortixConnectors() {
+export function useDonnaConnectors() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const serverUrl = useServerStore((s) => s.getActiveServerUrl());
   return useQuery({

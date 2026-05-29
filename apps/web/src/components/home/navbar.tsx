@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useAuth } from '@/components/AuthProvider';
 import { useRouter, usePathname } from 'next/navigation';
-import { KortixLogo } from '@/components/sidebar/kortix-logo';
+import { DonnaLogo } from '@/components/sidebar/donna-logo';
 import { useTranslations } from 'next-intl';
 import { trackCtaSignup } from '@/lib/analytics/gtm';
 import { AppDownloadQR } from '@/components/common/app-download-qr';
@@ -210,7 +210,7 @@ export function Navbar({ isAbsolute = false }: NavbarProps) {
         <ContextMenu>
           <ContextMenuTrigger asChild>
             <Link href="/" className="flex items-center shrink-0">
-              <KortixLogo size={18} variant='logomark' />
+              <DonnaLogo size={18} variant='logomark' />
             </Link>
           </ContextMenuTrigger>
           <ContextMenuContent className="w-48">
@@ -340,7 +340,7 @@ export function Navbar({ isAbsolute = false }: NavbarProps) {
             {/* Header - matches navbar positioning */}
             <div className="flex h-[56px] items-center justify-between px-6 py-2">
               <Link href="/" className="flex items-center gap-3" onClick={() => setIsDrawerOpen(false)}>
-                <KortixLogo size={18} variant='logomark' />
+                <DonnaLogo size={18} variant='logomark' />
               </Link>
               <Button
                 onClick={toggleDrawer}

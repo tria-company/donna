@@ -3,7 +3,7 @@
 import { memo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DrawerContent } from '@/components/ui/drawer';
-import { useKortixComputerStore } from '@/stores/kortix-computer-store';
+import { useDonnaComputerStore } from '@/stores/donna-computer-store';
 import { PanelHeader } from './PanelHeader';
 
 interface LoadingStateProps {
@@ -30,7 +30,7 @@ export const LoadingState = memo(function LoadingState({
   onClose,
   isMobile,
 }: LoadingStateProps) {
-  const { activeView, setActiveView } = useKortixComputerStore();
+  const { activeView, setActiveView } = useDonnaComputerStore();
 
   if (isMobile) {
     return (

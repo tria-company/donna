@@ -121,7 +121,7 @@ function normalizeTask(raw: any): KortixTask {
 // Tasks
 // ---------------------------------------------------------------------------
 
-export function useKortixTasks(
+export function useDonnaTasks(
   projectId?: string,
   status?: string,
   options: KortixTaskQueryOptions = {},

@@ -6,7 +6,7 @@ import { openTabAndNavigate } from '@/stores/tab-store';
 
 export type ViewType = 'tools' | 'files' | 'browser' | 'desktop' | 'terminal' | 'changes';
 
-interface KortixComputerState {
+interface DonnaComputerState {
   // === SANDBOX CONTEXT ===
   currentSandboxId: string | null;
   
@@ -37,7 +37,7 @@ interface KortixComputerState {
   // Navigate to a specific tool call (clicking tool in ThreadContent)
   navigateToToolCall: (toolIndex: number) => void;
   
-  // Clear pending tool nav after KortixComputer processes it
+  // Clear pending tool nav after DonnaComputer processes it
   clearPendingToolNav: () => void;
   
   // Panel control
@@ -65,7 +65,7 @@ const initialState = {
   pendingToolNavIndex: null as number | null,
 };
 
-export const useKortixComputerStore = create<KortixComputerState>()(
+export const useDonnaComputerStore = create<DonnaComputerState>()(
   devtools(
     (set, get) => ({
       ...initialState,
@@ -74,7 +74,7 @@ export const useKortixComputerStore = create<KortixComputerState>()(
         const currentSandboxId = get().currentSandboxId;
         
         if (currentSandboxId !== sandboxId) {
-          console.log('[KortixComputerStore] Sandbox context changed:', currentSandboxId, '->', sandboxId);
+          console.log('[DonnaComputerStore] Sandbox context changed:', currentSandboxId, '->', sandboxId);
           // Reset files store when sandbox changes
           useFilesStore.getState().reset();
           set({
@@ -134,7 +134,7 @@ export const useKortixComputerStore = create<KortixComputerState>()(
       
       setIsSidePanelOpen: (open: boolean) => {
         const sessionId = get()._activeSessionId;
-        const update: Partial<KortixComputerState> = { isSidePanelOpen: open };
+        const update: Partial<DonnaComputerState> = { isSidePanelOpen: open };
         if (sessionId) {
           update._panelOpenBySession = { ...get()._panelOpenBySession, [sessionId]: open };
         }
@@ -162,7 +162,7 @@ export const useKortixComputerStore = create<KortixComputerState>()(
       
       openSidePanel: () => {
         const sessionId = get()._activeSessionId;
-        const update: Partial<KortixComputerState> = { isSidePanelOpen: true };
+        const update: Partial<DonnaComputerState> = { isSidePanelOpen: true };
         if (sessionId) {
           update._panelOpenBySession = { ...get()._panelOpenBySession, [sessionId]: true };
         }
@@ -171,7 +171,7 @@ export const useKortixComputerStore = create<KortixComputerState>()(
       
       closeSidePanel: () => {
         const sessionId = get()._activeSessionId;
-        const update: Partial<KortixComputerState> = { isSidePanelOpen: false, isExpanded: false };
+        const update: Partial<DonnaComputerState> = { isSidePanelOpen: false, isExpanded: false };
         if (sessionId) {
           update._panelOpenBySession = { ...get()._panelOpenBySession, [sessionId]: false };
         }
@@ -187,13 +187,13 @@ export const useKortixComputerStore = create<KortixComputerState>()(
       },
       
       reset: () => {
-        console.log('[KortixComputerStore] Full reset');
+        console.log('[DonnaComputerStore] Full reset');
         useFilesStore.getState().reset();
         set(initialState);
       },
     }),
     {
-      name: 'kortix-computer-store',
+      name: 'donna-computer-store',
     }
   )
 );
@@ -201,32 +201,32 @@ export const useKortixComputerStore = create<KortixComputerState>()(
 // === SELECTOR HOOKS ===
 
 // Sandbox context
-export const useKortixComputerSandboxId = () =>
-  useKortixComputerStore((state) => state.currentSandboxId);
+export const useDonnaComputerSandboxId = () =>
+  useDonnaComputerStore((state) => state.currentSandboxId);
 
 export const useSetSandboxContext = () =>
-  useKortixComputerStore((state) => state.setSandboxContext);
+  useDonnaComputerStore((state) => state.setSandboxContext);
 
 // Main view state
-export const useKortixComputerActiveView = () => 
-  useKortixComputerStore((state) => state.activeView);
+export const useDonnaComputerActiveView = () => 
+  useDonnaComputerStore((state) => state.activeView);
 
 // Individual selectors for pending tool navigation (stable primitives)
-export const useKortixComputerPendingToolNavIndex = () =>
-  useKortixComputerStore((state) => state.pendingToolNavIndex);
+export const useDonnaComputerPendingToolNavIndex = () =>
+  useDonnaComputerStore((state) => state.pendingToolNavIndex);
 
-export const useKortixComputerClearPendingToolNav = () =>
-  useKortixComputerStore((state) => state.clearPendingToolNav);
+export const useDonnaComputerClearPendingToolNav = () =>
+  useDonnaComputerStore((state) => state.clearPendingToolNav);
 
 // Side panel state selectors
 export const useIsSidePanelOpen = () =>
-  useKortixComputerStore((state) => state.isSidePanelOpen);
+  useDonnaComputerStore((state) => state.isSidePanelOpen);
 
 export const useSetIsSidePanelOpen = () =>
-  useKortixComputerStore((state) => state.setIsSidePanelOpen);
+  useDonnaComputerStore((state) => state.setIsSidePanelOpen);
 
 export const useIsExpanded = () =>
-  useKortixComputerStore((state) => state.isExpanded);
+  useDonnaComputerStore((state) => state.isExpanded);
 
 export const useToggleExpanded = () =>
-  useKortixComputerStore((state) => state.toggleExpanded);
+  useDonnaComputerStore((state) => state.toggleExpanded);

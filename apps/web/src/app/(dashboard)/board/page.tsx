@@ -35,7 +35,7 @@ import {
   useUpdateTicketStatus,
   useDeleteTicket,
   type Ticket,
-} from '@/hooks/kortix/use-kortix-tickets';
+} from '@/hooks/donna/use-donna-tickets';
 import { TicketBoard } from '@/components/kortix/ticket-board';
 import { NewTicketDialog } from '@/components/kortix/new-ticket-dialog';
 import { TicketDetailDrawer } from '@/components/kortix/ticket-detail-drawer';

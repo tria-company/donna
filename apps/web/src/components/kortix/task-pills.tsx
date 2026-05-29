@@ -16,7 +16,7 @@ import {
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { STATUS_META, ALL_STATUSES } from '@/lib/kortix/task-meta';
-import type { KortixTaskStatus } from '@/hooks/kortix/use-kortix-tasks';
+import type { KortixTaskStatus } from '@/hooks/donna/use-donna-tasks';
 
 interface StatusPillProps {
   status: KortixTaskStatus;

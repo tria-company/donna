@@ -14,7 +14,7 @@
  */
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { useMilestones as useMilestonesHook, useSetTicketMilestone as useSetTicketMilestoneHook } from '@/hooks/kortix/use-milestones';
+import { useMilestones as useMilestonesHook, useSetTicketMilestone as useSetTicketMilestoneHook } from '@/hooks/donna/use-milestones';
 import {
   X,
   Send,
@@ -73,7 +73,7 @@ import {
   type TicketColumn,
   type ProjectField,
   type ProjectAgent,
-} from '@/hooks/kortix/use-kortix-tickets';
+} from '@/hooks/donna/use-donna-tickets';
 import { relativeTime, fullDate } from '@/lib/kortix/task-meta';
 
 interface Props {

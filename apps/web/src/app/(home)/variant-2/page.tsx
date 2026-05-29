@@ -14,7 +14,7 @@ import { GithubButton } from '@/components/home/github-button';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 
-const KortixBoxScene = dynamic(() => import('@/components/landing/KortixBoxScene'), {
+const DonnaBoxScene = dynamic(() => import('@/components/landing/DonnaBoxScene'), {
   ssr: false,
   loading: () => <div className="animate-pulse bg-foreground/5 w-full h-full rounded-full blur-3xl opacity-20" />
 });
@@ -79,7 +79,7 @@ export default function Variant2Home() {
           className="fixed inset-0 z-10 pointer-events-none"
           style={{ opacity: sceneOpacity }}
         >
-          <KortixBoxScene
+          <DonnaBoxScene
             scrollProgressRef={sceneProgressRef}
             isOn={isMachineOn}
             setIsOn={setIsMachineOn}

@@ -57,7 +57,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { useMilestones, type Milestone } from '@/hooks/kortix/use-milestones';
+import { useMilestones, type Milestone } from '@/hooks/donna/use-milestones';
 import {
   useCreateTicket,
   useTemplates,
@@ -68,7 +68,7 @@ import {
   type TicketTemplate,
   type ProjectAgent,
   type AssigneeType,
-} from '@/hooks/kortix/use-kortix-tickets';
+} from '@/hooks/donna/use-donna-tickets';
 
 interface Props {
   open: boolean;

@@ -29,7 +29,7 @@ import { openTabAndNavigate } from '@/stores/tab-store';
 import type {
   KortixTask,
   KortixTaskStatus,
-} from '@/hooks/kortix/use-kortix-tasks';
+} from '@/hooks/donna/use-donna-tasks';
 
 interface TaskKanbanProps {
   tasks: KortixTask[];

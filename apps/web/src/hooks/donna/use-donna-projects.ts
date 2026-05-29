@@ -58,7 +58,7 @@ interface KortixProjectQueryOptions {
 
 // ── Hooks ────────────────────────────────────────────────────────────────────
 
-export function useKortixProjects(_args?: undefined, options: KortixProjectQueryOptions = {}) {
+export function useDonnaProjects(_args?: undefined, options: KortixProjectQueryOptions = {}) {
   const { user, isLoading: isAuthLoading } = useAuth();
   const serverVersion = useServerStore((s) => s.serverVersion);
   const serverUrl = useServerStore((s) => s.getActiveServerUrl());

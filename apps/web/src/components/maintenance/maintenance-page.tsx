@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
-import { KortixLoader } from '@/components/ui/kortix-loader';
+import { DonnaLoader } from '@/components/ui/donna-loader';
 import { useApiHealth } from '@/hooks/usage/use-health';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { AnimatedBg } from '@/components/ui/animated-bg';
-import { KortixLogo } from '@/components/sidebar/kortix-logo';
+import { DonnaLogo } from '@/components/sidebar/donna-logo';
 
 export function MaintenancePage() {
   const [lastChecked, setLastChecked] = useState<Date | null>(null);
@@ -39,7 +39,7 @@ export function MaintenancePage() {
 
         <div className="relative z-10 w-full max-w-[456px] flex flex-col items-center gap-8">
           {/* Logo - 32px height */}
-          <KortixLogo size={32} />
+          <DonnaLogo size={32} />
 
           {/* Title - 43px */}
           <h1 className="text-[43px] font-normal tracking-tight textforeground leading-none">
@@ -72,7 +72,7 @@ export function MaintenancePage() {
                   className="h-12 w-12 bg-border"
                 >
                   {isCheckingHealth ? (
-                    <KortixLoader size="small" customSize={20} />
+                    <DonnaLoader size="small" customSize={20} />
                   ) : (
                     <RefreshCw className="h-5 w-5 text-foreground" />
                   )}

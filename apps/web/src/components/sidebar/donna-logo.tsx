@@ -2,13 +2,13 @@
 
 import { cn } from '@/lib/utils';
 
-interface KortixLogoProps {
+interface DonnaLogoProps {
   size?: number;
   variant?: 'symbol' | 'logomark';
   className?: string;
 }
 
-export function KortixLogo({ size = 24, variant = 'symbol', className }: KortixLogoProps) {
+export function DonnaLogo({ size = 24, variant = 'symbol', className }: DonnaLogoProps) {
   // For logomark variant, use logomark-white.svg which is already white
   // and invert it for light mode using CSS (no JS needed)
   if (variant === 'logomark') {

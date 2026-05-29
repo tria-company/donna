@@ -16,8 +16,8 @@ import {
   Play,
   Paperclip,
 } from 'lucide-react';
-import { useCreateKortixTask, useStartKortixTask } from '@/hooks/kortix/use-kortix-tasks';
-import type { KortixTaskStatus } from '@/hooks/kortix/use-kortix-tasks';
+import { useCreateKortixTask, useStartKortixTask } from '@/hooks/donna/use-donna-tasks';
+import type { KortixTaskStatus } from '@/hooks/donna/use-donna-tasks';
 import { uploadFile } from '@/features/files/api/opencode-files';
 import { getFileIcon } from '@/features/files/components/file-icon';
 import { toast } from '@/lib/toast';

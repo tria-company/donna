@@ -41,7 +41,7 @@ import {
   MessageSquare,
   ExternalLink,
 } from 'lucide-react';
-import { KortixLoader } from '@/components/ui/kortix-loader';
+import { DonnaLoader } from '@/components/ui/donna-loader';
 import { useAdminUserDetails, useAdminUserThreads, useAdminUserActivity } from '@/hooks/admin/use-admin-users';
 import {
   useUserBillingSummary,
@@ -617,7 +617,7 @@ export function AdminUserDetailsDialog({
                       >
                         {processRefundMutation.isPending ? (
                           <>
-                            <KortixLoader size="small" className="mr-2" />
+                            <DonnaLoader size="small" className="mr-2" />
                             Processing...
                           </>
                         ) : (
