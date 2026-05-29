@@ -96,13 +96,65 @@ export const MODELS: Record<string, ModelConfig> = {
     tier: 'free',
     cacheReadPer1M: 0.10,
   },
+
+  // ─── Donna fork ──────────────────────────────────────────────────────────
+  // Donna routes everything through the OpenRouter Auto router by default —
+  // it picks a sensible model per request instead of pinning one. Pricing
+  // here is a representative estimate; the actual cost depends on what Auto
+  // picks. In local-mode deployments (billing disabled) the numbers don't
+  // matter at runtime — they're kept for any future cost reporting.
+  'openrouter/auto': {
+    openrouterId: 'openrouter/auto',
+    inputPer1M: 0.50,
+    outputPer1M: 2.00,
+    contextWindow: 128000,
+    tier: 'free',
+  },
+
+  // Brand aliases. `cube/*` and `donna/*` are the IDs that older agents
+  // and threads persisted before the migration. We keep them registered
+  // (mapping to a working OpenRouter target) so existing rows resolve
+  // instead of 400ing; the frontend picker is what decides whether to
+  // show them as user-selectable options.
+  'cube/basic': {
+    openrouterId: 'openrouter/auto',
+    inputPer1M: 0.50,
+    outputPer1M: 2.00,
+    contextWindow: 128000,
+    tier: 'free',
+  },
+  'cube/power': {
+    openrouterId: 'openai/gpt-4.1',
+    inputPer1M: 2.00,
+    outputPer1M: 8.00,
+    contextWindow: 1000000,
+    tier: 'paid',
+  },
+  'donna/basic': {
+    openrouterId: 'openrouter/auto',
+    inputPer1M: 0.50,
+    outputPer1M: 2.00,
+    contextWindow: 128000,
+    tier: 'free',
+  },
+  'donna/power': {
+    openrouterId: 'openai/gpt-4.1',
+    inputPer1M: 2.00,
+    outputPer1M: 8.00,
+    contextWindow: 1000000,
+    tier: 'paid',
+  },
 };
 
 /**
  * Default model for Kortix-managed contexts (cron, memory, etc.)
  * that need a sensible default without user input.
+ *
+ * Donna fork: defaults to the OpenRouter Auto router instead of a single
+ * pinned model so the system picks a sensible target per request. Matches
+ * the fork's FREE_MODEL_ID == PREMIUM_MODEL_ID == 'openrouter/auto' policy.
  */
-export const DEFAULT_MODEL_ID = 'minimax/minimax-m2.7';
+export const DEFAULT_MODEL_ID = 'openrouter/auto';
 
 // =============================================================================
 // Model Resolution
