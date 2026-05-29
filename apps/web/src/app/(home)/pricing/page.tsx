@@ -6,10 +6,15 @@ import { useNewInstanceModalStore } from '@/stores/pricing-modal-store';
 import { CreditsExplainedModal } from '@/components/billing/credits-explained-modal';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import { isSelfHosted } from '@/lib/config';
 
 export default function PricingPage() {
   const [creditsModalOpen, setCreditsModalOpen] = useState(false);
   const openNewInstanceModal = useNewInstanceModalStore((s) => s.openNewInstanceModal);
+
+  // Donna fork: the pricing page is cloud-only; in a self-hosted (internal-tool)
+  // deployment we hide it entirely. Called after hooks to respect the rules of hooks.
+  if (isSelfHosted()) return null;
 
   return (
     <main className="min-h-screen bg-background">
