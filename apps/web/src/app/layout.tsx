@@ -8,6 +8,7 @@ import { Toaster } from '@/components/ui/sonner';
 import '@/lib/polyfills';
 import { roobert } from './fonts/roobert';
 import { roobertMono } from './fonts/roobert-mono';
+import { lato } from './fonts/lato';
 import { Suspense, lazy } from 'react';
 import { I18nProvider } from '@/components/i18n-provider';
 import { getServerPublicEnv } from '@/lib/public-env-server';
@@ -112,7 +113,7 @@ export default async function RootLayout({
   const runtimeEnv = getServerPublicEnv();
 
   return (
-    <html lang="en" translate="no" suppressHydrationWarning className={`notranslate ${roobert.variable} ${roobertMono.variable}`}>
+    <html lang="en" translate="no" suppressHydrationWarning className={`notranslate ${lato.variable} ${roobert.variable} ${roobertMono.variable}`}>
       <head>
         {/* Runtime config — evaluated at request time via connection() above.
             Docker images get correct env vars regardless of build-time defaults. */}
