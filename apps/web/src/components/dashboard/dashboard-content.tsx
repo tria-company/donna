@@ -110,7 +110,7 @@ export function DashboardContent() {
 
         openTabAndNavigate({
           id: session.id,
-          title: 'New session',
+          title: 'Nova sessão',
           type: 'session',
           href: `/sessions/${session.id}`,
           serverId: useServerStore.getState().activeServerId,
@@ -121,7 +121,7 @@ export function DashboardContent() {
         });
       } catch {
         usePendingFilesStore.getState().setPendingFiles([]);
-        toast.warning('Failed to create session');
+        toast.warning('Falha ao criar sessão');
       } finally {
         // On success the dashboard is already hidden (pushState + setActiveTab),
         // so the fade-in transition runs off-screen — no visible flicker.
@@ -153,10 +153,10 @@ export function DashboardContent() {
           ...(local.model.currentKey && { model: formatModelString(local.model.currentKey) }),
           ...(local.model.variant.current && { variant: local.model.variant.current }),
         } as any).catch(() => {
-          toast.warning('Failed to execute command');
+          toast.warning('Falha ao executar comando');
         });
       } catch {
-        toast.warning('Failed to create session');
+        toast.warning('Falha ao criar sessão');
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -174,7 +174,7 @@ export function DashboardContent() {
                 setOpenMobile(true);
               }}
               className="flex items-center justify-center h-9 w-9 -ml-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50 active:bg-accent transition-colors touch-manipulation"
-              aria-label="Open menu"
+              aria-label="Abrir menu"
             >
               <Menu className="h-5 w-5" />
             </button>
@@ -225,7 +225,7 @@ export function DashboardContent() {
       <SessionChatInput
         onSend={handleSend}
         disabled={isSending}
-        placeholder="Ask anything..."
+        placeholder="No que vamos trabalhar hoje?"
         agents={local.agent.list}
         selectedAgent={local.agent.current?.name ?? null}
         onAgentChange={(name) => local.agent.set(name ?? undefined)}
