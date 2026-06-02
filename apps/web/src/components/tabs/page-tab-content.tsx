@@ -119,6 +119,7 @@ const ServiceManagerPage = lazy(() => import('@/app/(dashboard)/service-manager/
 const TerminalPage = lazy(() =>
 	import('@/components/terminal/terminal-view').then((m) => ({ default: m.TerminalView })),
 );
+const KnowledgePage = lazy(() => import('@/app/(dashboard)/knowledge/page'));
 
 // ---------------------------------------------------------------------------
 // Route → Component mapping
@@ -148,6 +149,7 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
 	'/browser': BrowserPage,
 	'/desktop': DesktopPage,
 	'/projects': ProjectsPage,
+	'/knowledge': KnowledgePage,
 	'/service-manager': ServiceManagerPage,
 	'/terminal': TerminalPage,
 	'/tunnel': TunnelOverviewPage,
