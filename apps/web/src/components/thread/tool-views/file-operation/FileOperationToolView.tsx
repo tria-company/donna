@@ -223,7 +223,7 @@ export function FileOperationToolView({
   // Presentation viewer store for opening fullscreen presentation
   const { openPresentation } = usePresentationViewerStore();
   
-  // Kortix Computer store for opening files in Files Manager
+  // Donna Computer store for opening files in Files Manager
   const { openFileInComputer } = useDonnaComputerStore();
 
   // Extract from structured metadata

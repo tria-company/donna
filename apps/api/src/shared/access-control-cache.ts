@@ -40,6 +40,11 @@ export function startAccessControlCache() {
   refreshTimer = setInterval(refresh, REFRESH_INTERVAL_MS);
 }
 
+/** Force an immediate reload of the allowlist + settings (call after admin edits). */
+export async function refreshAccessControlCache() {
+  await refresh();
+}
+
 export function stopAccessControlCache() {
   if (refreshTimer) {
     clearInterval(refreshTimer);
@@ -48,6 +53,9 @@ export function stopAccessControlCache() {
 }
 
 export function areSignupsEnabled(): boolean {
+  // Env override wins over the DB setting (self-host invite-only switch).
+  if (process.env.SIGNUPS_ENABLED === 'false') return false;
+  if (process.env.SIGNUPS_ENABLED === 'true') return true;
   return signupsEnabled;
 }
 
@@ -60,6 +68,6 @@ export function isEmailAllowed(email: string): boolean {
 }
 
 export function canSignUp(email: string): boolean {
-  if (signupsEnabled) return true;
+  if (areSignupsEnabled()) return true;
   return isEmailAllowed(email);
 }

@@ -1,6 +1,5 @@
 'use client';
 
-import { cn } from '@/lib/utils';
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -26,9 +25,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { createClient } from '@/lib/supabase/client';
-import { useTheme } from 'next-themes';
 import { isBillingEnabled } from '@/lib/config';
-import { transitionFromElement } from '@/lib/view-transition';
 
 import { clearUserLocalStorage } from '@/lib/utils/clear-local-storage';
 import { UserSettingsModal } from '@/components/settings/user-settings-modal';
@@ -36,10 +33,7 @@ import { UserSettingsModal } from '@/components/settings/user-settings-modal';
 import { useTranslations } from 'next-intl';
 import { useReferralDialog } from '@/stores/referral-dialog';
 import { ReferralDialog } from '@/components/referrals/referral-dialog';
-import {
-  themeOptions,
-  type SettingsTabId,
-} from '@/lib/menu-registry';
+import { type SettingsTabId } from '@/lib/menu-registry';
 
 // ============================================================================
 // Types
@@ -69,16 +63,6 @@ export function UserMenu({ user }: UserMenuProps) {
   const [settingsTab, setSettingsTab] = React.useState<SettingsTab>('general');
   const [menuOpen, setMenuOpen] = React.useState(false);
   const { isOpen: isReferralDialogOpen, openDialog: openReferralDialog, closeDialog: closeReferralDialog } = useReferralDialog();
-  const { theme, setTheme } = useTheme();
-
-  const handleThemeChange = React.useCallback((newTheme: string, e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (newTheme === theme) return;
-    transitionFromElement(e.currentTarget as HTMLElement, () => setTheme(newTheme));
-  }, [theme, setTheme]);
-
-
   const openSettings = (tab: SettingsTab) => {
     setSettingsTab(tab);
     setShowSettingsModal(true);
@@ -125,10 +109,12 @@ export function UserMenu({ user }: UserMenuProps) {
                   the sidebar-header switcher (Slack/Linear style) so there's
                   one obvious place for "what workspace am I in / switch". */}
               <DropdownMenuGroup>
-                <DropdownMenuItem onClick={() => openSettings('billing')} className="cursor-pointer">
-                  <CreditCard />
-                  <span>Billing</span>
-                </DropdownMenuItem>
+                {billingActive && (
+                  <DropdownMenuItem onClick={() => openSettings('billing')} className="cursor-pointer">
+                    <CreditCard />
+                    <span>Billing</span>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => openSettings('general')} className="cursor-pointer">
                   <SettingsIcon />
                   <span>Settings</span>
@@ -136,28 +122,8 @@ export function UserMenu({ user }: UserMenuProps) {
               </DropdownMenuGroup>
               <DropdownMenuSeparator className="my-1" />
 
-              {/* Theme toggle + Log out */}
-              <div className="flex items-center justify-between px-1 py-1">
-                <div className="flex gap-0.5 p-0.5 bg-muted/50 rounded-full">
-                  {themeOptions.map((mode) => {
-                    const Icon = mode.icon;
-                    const isActive = theme === mode.value;
-                    return (
-                      <button
-                        key={mode.value}
-                        type="button"
-                        onClick={(e) => handleThemeChange(mode.value, e)}
-                        className={cn('p-1.5 rounded-full transition-colors duration-150 cursor-pointer',
-                          isActive
-                            ? 'bg-background text-foreground'
-                            : 'text-muted-foreground hover:text-foreground'
-                        )}
-                      >
-                        <Icon className="size-3.5" />
-                      </button>
-                    );
-                  })}
-                </div>
+              {/* Log out */}
+              <div className="flex items-center justify-end px-1 py-1">
                 <button
                   type="button"
                   onClick={handleLogout}

@@ -1,0 +1,33 @@
+# Backend da Donna na VPS (HostHatch) — kortix-api + Caddy (TLS automático).
+#
+# A imagem `kortix-api:latest` é construída a partir da RAIZ do repo (ver README.md):
+#   docker build --build-arg SERVICE=apps/api -f apps/api/Dockerfile -t kortix-api:latest .
+#
+# Depois, nesta pasta:  docker compose up -d
+
+services:
+  api:
+    image: kortix-api:latest
+    restart: unless-stopped
+    env_file: .env
+    expose:
+      - "8008"          # interno; quem expõe pra internet é o Caddy
+    # Sem ports: publicados — o Caddy faz o TLS e repassa. Daytona é remoto,
+    # então NÃO precisa montar o socket do Docker aqui.
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+
+volumes:
+  caddy_data:
+  caddy_config:

@@ -18,9 +18,9 @@ import { BrowserNoiseGuard } from '@/components/browser-noise-guard';
 import { DesktopChrome } from '@/components/desktop/desktop-chrome';
 import { DESKTOP_INIT_SCRIPT } from '@/lib/desktop';
 
-// Lazy load non-critical analytics and global components
-const Analytics = lazy(() => import('@vercel/analytics/react').then(mod => ({ default: mod.Analytics })));
-const SpeedInsights = lazy(() => import('@vercel/speed-insights/next').then(mod => ({ default: mod.SpeedInsights })));
+// Lazy load non-critical analytics and global components.
+// Donna fork: Vercel Analytics / SpeedInsights removed — self-hosted only;
+// they 404 on /_vercel/insights/script.js and pollute the browser console.
 const GoogleTagManager = lazy(() => import('@next/third-parties/google').then(mod => ({ default: mod.GoogleTagManager })));
 const PostHogIdentify = lazy(() => import('@/components/posthog-identify').then(mod => ({ default: mod.PostHogIdentify })));
 const AnnouncementDialog = lazy(() => import('@/components/announcements/announcement-dialog').then(mod => ({ default: mod.AnnouncementDialog })));
@@ -51,9 +51,9 @@ export const metadata: Metadata = {
   },
   description: siteMetadata.description,
   keywords: siteMetadata.keywords,
-  authors: [{ name: 'Kortix Team', url: 'https://www.kortix.com' }],
-  creator: 'Kortix Team',
-  publisher: 'Kortix Team',
+  authors: [{ name: 'Donna Team', url: 'https://www.kortix.com' }],
+  creator: 'Donna Team',
+  publisher: 'Donna Team',
   applicationName: siteMetadata.name,
   robots: {
     index: true,
@@ -197,17 +197,17 @@ export default async function RootLayout({
         />
 
         {/* Static SEO meta tags - rendered in initial HTML */}
-        <title>Kortix – The Autonomous Company Operating System</title>
+        <title>Donna – Sistema Operacional de Agentes Autônomos</title>
         <meta name="description" content="A cloud computer where AI agents run your company. Connect 3,000+ tools, configure autonomous agents, set triggers — and the machine operates 24/7 with persistent memory." />
-        <meta name="keywords" content="Kortix, autonomous company operating system, AI agents, self-driving company, cloud computer, AI automation, agent orchestration, goal loops, AI triggers, persistent memory, autonomous workforce, AI operations" />
-        <meta property="og:title" content="Kortix – The Autonomous Company Operating System" />
+        <meta name="keywords" content="Donna, autonomous company operating system, AI agents, self-driving company, cloud computer, AI automation, agent orchestration, goal loops, AI triggers, persistent memory, autonomous workforce, AI operations" />
+        <meta property="og:title" content="Donna – Sistema Operacional de Agentes Autônomos" />
         <meta property="og:description" content="A cloud computer where AI agents run your company. Connect 3,000+ tools, configure autonomous agents, set triggers — and the machine operates 24/7 with persistent memory." />
         <meta property="og:image" content="https://kortix.com/banner.png" />
         <meta property="og:url" content="https://kortix.com" />
         <meta property="og:type" content="website" />
-        <meta property="og:site_name" content="Kortix" />
+        <meta property="og:site_name" content="Donna" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Kortix – The Autonomous Company Operating System" />
+        <meta name="twitter:title" content="Donna – Sistema Operacional de Agentes Autônomos" />
         <meta name="twitter:description" content="A cloud computer where AI agents run your company. Connect 3,000+ tools, configure autonomous agents, set triggers — and the machine operates 24/7 with persistent memory." />
         <meta name="twitter:image" content="https://kortix.com/banner.png" />
         <meta name="twitter:site" content="@kortix" />
@@ -227,7 +227,7 @@ export default async function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'Organization',
               name: siteMetadata.name,
-              alternateName: ['Kortix', 'Kortix AI', 'Kortix – The Autonomous Company Operating System'],
+              alternateName: ['Donna', 'Donna AI', 'Donna – Sistema Operacional de Agentes Autônomos'],
               url: siteMetadata.url,
               logo: `${siteMetadata.url}/favicon.png`,
               description: siteMetadata.description,
@@ -253,7 +253,7 @@ export default async function RootLayout({
               '@context': 'https://schema.org',
               '@type': 'SoftwareApplication',
               name: siteMetadata.title,
-              alternateName: [siteMetadata.name, 'Kortix'],
+              alternateName: [siteMetadata.name, 'Donna'],
               applicationCategory: 'BusinessApplication',
               operatingSystem: 'Web, macOS, Windows, Linux',
               description: siteMetadata.description,
@@ -267,11 +267,14 @@ export default async function RootLayout({
         />
       </head>
 
-      <body translate="no" className="notranslate antialiased font-sans bg-background">
+      {/* suppressHydrationWarning: browser extensions (e.g. video/download
+          helpers) inject attributes like inject_newsvd onto <body> before
+          React hydrates, causing a benign hydration mismatch. */}
+      <body translate="no" suppressHydrationWarning className="notranslate antialiased font-sans bg-background">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="dark"
+          forcedTheme="dark"
           disableTransitionOnChange
         >
           <BrowserNoiseGuard />
@@ -287,17 +290,11 @@ export default async function RootLayout({
             </I18nProvider>
           </AuthProvider>
           {/* Analytics - lazy loaded to not block FCP */}
-          <Suspense fallback={null}>
-            <Analytics />
-          </Suspense>
           {process.env.NEXT_PUBLIC_GTM_ID && (
             <Suspense fallback={null}>
               <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
             </Suspense>
           )}
-          <Suspense fallback={null}>
-            <SpeedInsights />
-          </Suspense>
           <Suspense fallback={null}>
             <PostHogIdentify />
           </Suspense>

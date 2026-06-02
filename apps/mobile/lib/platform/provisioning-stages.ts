@@ -1,7 +1,7 @@
 /**
  * Provisioning stage constants for mobile — mirrors the frontend's definitions.
  *
- * Source of truth: apps/frontend/src/lib/provisioning-stages.ts
+ * Source of truth: apps/web/src/lib/provisioning-stages.ts
  */
 
 export interface ProvisioningStageInfo {

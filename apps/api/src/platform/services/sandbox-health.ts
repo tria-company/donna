@@ -12,6 +12,7 @@
 
 import { config } from '../../config';
 import { buildCanonicalSandboxAuthCommand, getAuthCandidates, getLocalSandboxServiceKey } from './sandbox-auth';
+import { DOCKER_EXEC_SHELL } from '../../shared/exec-shell';
 
 // ─── State ───────────────────────────────────────────────────────────────────
 
@@ -284,7 +285,7 @@ async function attemptKeySyncFallback(keys: Record<string, string>): Promise<boo
     const apiUrl = keys.KORTIX_API_URL || keys.TUNNEL_API_URL || '';
     execSync(
       `docker exec ${shellQuote(config.SANDBOX_CONTAINER_NAME)} bash -c ${shellQuote(buildCanonicalSandboxAuthCommand(token, apiUrl))}`,
-      { timeout: 15_000, stdio: 'pipe', env },
+      { timeout: 15_000, stdio: 'pipe', env, shell: DOCKER_EXEC_SHELL },
     );
 
     console.log(`[sandbox-health] Core env sync successful via docker exec fallback`);

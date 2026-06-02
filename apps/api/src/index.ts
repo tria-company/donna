@@ -21,6 +21,12 @@ import { platformApp } from './platform';
 import { sandboxProxyApp, resolveProvider, invalidateProviderCache } from './sandbox-proxy';
 import { isProxyTokenStale, refreshSandboxProxyToken } from './platform/providers/justavps';
 import { getSandboxBaseUrl, proxyToSandbox } from './sandbox-proxy/routes/local-preview';
+import { resolvePreviewLink } from './sandbox-proxy/routes/preview';
+import { createComposioRouter } from './integrations/composio/routes';
+import { createKnowledgeRouter } from './knowledge/routes';
+import { createKnowledgeMcpRouter } from './knowledge/mcp';
+import { createWorkspaceSeedRouter } from './platform/routes/workspace-seed';
+import { onTerminalMessage, onTerminalClose } from './terminal/pty-bridge';
 import { validateSecretKey } from './repositories/api-keys';
 import { isKortixToken } from './shared/crypto';
 import { getSupabase } from './shared/supabase';
@@ -331,6 +337,17 @@ if (config.KORTIX_DEPLOYMENTS_ENABLED) {
   app.route('/v1/deployments', deploymentsApp); // /v1/deployments/*
 }
 app.route('/v1/pipedream', integrationsApp);
+app.route('/v1/composio', createComposioRouter()); // Composio (MCP-based integrations)
+app.route('/v1/knowledge/mcp', createKnowledgeMcpRouter()); // sandbox-authed MCP (search tool) — MUST precede /v1/knowledge (supabaseAuth)
+app.route('/v1/knowledge', createKnowledgeRouter()); // RAG knowledge base (pgvector + OpenAI embeddings)
+app.route('/v1/workspace-seed', createWorkspaceSeedRouter()); // durable per-account opencode project (agents/skills/commands)
+
+// Minimal /v1/sandboxes compat: the Donna Computer terminal connects via the
+// in-browser PTY bridge (ws /v1/sandboxes/:id/terminal/ws, handled at the Bun
+// server level below), so there is no separate SSH command to surface here.
+const sandboxesCompatApp = new Hono();
+sandboxesCompatApp.post('/:id/ssh/token', (c) => c.json({ ssh_command: null }));
+app.route('/v1/sandboxes', sandboxesCompatApp);
 
 // Access control — public endpoints for signup gating
 app.route('/v1/access', accessControlApp); // /v1/access/signup-status, /v1/access/check-email, /v1/access/request-access
@@ -784,14 +801,47 @@ function resolveWsTarget(
         proxyToken: opts.proxyToken,
       });
 
-    // case 'daytona':
-    //   return buildDaytonaWsTarget(...);
+    // Daytona resolves its WS target asynchronously (per-port preview link +
+    // token) — handled by buildDaytonaWsTarget() in the upgrade path, not here.
 
     default:
       break;
   }
 
   return buildLocalDockerWsTarget(opts.sandboxId, opts.port, opts.remainingPath, opts.searchParams, opts.serviceKey);
+}
+
+/**
+ * Daytona WebSocket target. Daytona exposes each port at its own preview URL
+ * (https://{port}-{sandboxId}.<node>.daytona...). Resolve that link (cached,
+ * async), convert to wss://, and forward the per-port preview token + the
+ * sandbox service key as upstream headers — mirroring the HTTP proxy
+ * (sandbox-proxy/routes/preview.ts).
+ */
+async function buildDaytonaWsTarget(opts: {
+  sandboxId: string;
+  port: number;
+  remainingPath: string;
+  searchParams: URLSearchParams;
+  serviceKey?: string;
+}): Promise<{ url: string; headers?: Record<string, string> }> {
+  const { url: previewUrl, token } = await resolvePreviewLink(opts.sandboxId, opts.port);
+  const wsBase = previewUrl
+    .replace(/^https:/i, 'wss:')
+    .replace(/^http:/i, 'ws:')
+    .replace(/\/$/, '');
+  // Drop our own ?token= auth param before forwarding upstream.
+  const fwd = new URLSearchParams(opts.searchParams);
+  fwd.delete('token');
+  const qs = fwd.toString();
+  const url = wsBase + opts.remainingPath + (qs ? `?${qs}` : '');
+  const headers: Record<string, string> = {
+    'X-Daytona-Skip-Preview-Warning': 'true',
+    'X-Daytona-Disable-CORS': 'true',
+  };
+  if (token) headers['X-Daytona-Preview-Token'] = token;
+  if (opts.serviceKey) headers['Authorization'] = `Bearer ${opts.serviceKey}`;
+  return { url, headers };
 }
 
 export default {
@@ -1050,7 +1100,7 @@ export default {
     // Used for OpenCode PTY terminals, SSE-over-WS, etc.
     // Must be handled HERE (at Bun server level) because Hono can't do WS upgrades.
     // Each provider resolves the upstream WebSocket URL differently.
-    if (isWsUpgrade && !config.isDaytonaEnabled()) {
+    if (isWsUpgrade) {
       const wsPathMatch = url.pathname.match(/^\/v1\/p\/([^/]+)\/(\d+)(\/.*)?$/);
       if (wsPathMatch) {
         const wsSandboxId = wsPathMatch[1];
@@ -1068,15 +1118,23 @@ export default {
           const resolved = await resolveProvider(wsSandboxId).catch(() => null);
           const provider = resolved?.provider ?? 'local_docker';
 
-          const wsTarget = resolveWsTarget(provider, {
-            sandboxId: wsSandboxId,
-            port: wsPort,
-            remainingPath: wsRemainingPath,
-            searchParams: url.searchParams,
-            slug: resolved?.slug,
-            serviceKey: resolved?.serviceKey,
-            proxyToken: resolved?.proxyToken,
-          });
+          const wsTarget = provider === 'daytona'
+            ? await buildDaytonaWsTarget({
+                sandboxId: wsSandboxId,
+                port: wsPort,
+                remainingPath: wsRemainingPath,
+                searchParams: url.searchParams,
+                serviceKey: resolved?.serviceKey,
+              })
+            : resolveWsTarget(provider, {
+                sandboxId: wsSandboxId,
+                port: wsPort,
+                remainingPath: wsRemainingPath,
+                searchParams: url.searchParams,
+                slug: resolved?.slug,
+                serviceKey: resolved?.serviceKey,
+                proxyToken: resolved?.proxyToken,
+              });
 
           const success = server.upgrade(req, {
             headers: buildWsUpgradeHeaders(req),
@@ -1100,6 +1158,20 @@ export default {
       }
     }
 
+    // ── Terminal PTY bridge — ws://…/v1/sandboxes/{id}/terminal/ws ──────────
+    if (isWsUpgrade) {
+      const termMatch = url.pathname.match(/^\/v1\/sandboxes\/([^/]+)\/terminal\/ws$/);
+      if (termMatch) {
+        const success = server.upgrade(req, {
+          headers: buildWsUpgradeHeaders(req),
+          data: { type: 'terminal-pty', sandboxId: termMatch[1], authed: false, pty: null, closed: false },
+        });
+        console.log(`[terminal-ws] upgrade sandbox=${termMatch[1]} origin=${req.headers.get('origin') ?? 'none'} success=${success}`);
+        if (success) return undefined;
+        console.warn('[terminal-ws] server.upgrade returned false — falling through');
+      }
+    }
+
     return app.fetch(req, server);
   },
 
@@ -1112,6 +1184,11 @@ export default {
       if (ws.data?.type === 'tunnel-agent') {
         tunnelWsHandlers.onOpen(ws.data.tunnelId, ws as any);
         return;
+      }
+
+      if (ws.data?.type === 'terminal-pty') {
+        activeWsConnections++;
+        return; // PTY is created after the client's auth message
       }
 
       activeWsConnections++;
@@ -1170,6 +1247,11 @@ export default {
         return;
       }
 
+      if (ws.data?.type === 'terminal-pty') {
+        void onTerminalMessage(ws as any, message);
+        return;
+      }
+
       resetIdleTimer(ws);
       const upstream = ws.data.upstream;
       if (upstream && upstream.readyState === WebSocket.OPEN) {
@@ -1189,6 +1271,12 @@ export default {
     close(ws: { data: any }) {
       if (ws.data?.type === 'tunnel-agent') {
         tunnelWsHandlers.onClose(ws.data.tunnelId);
+        return;
+      }
+
+      if (ws.data?.type === 'terminal-pty') {
+        activeWsConnections--;
+        void onTerminalClose(ws as any);
         return;
       }
 

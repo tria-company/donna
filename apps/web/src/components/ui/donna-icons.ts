@@ -1,5 +1,5 @@
 /**
- * Kortix brand icon layer.
+ * Donna brand icon layer.
  *
  * All icon imports in feature code should flow through this file instead of
  * importing from `lucide-react` directly. Benefits:

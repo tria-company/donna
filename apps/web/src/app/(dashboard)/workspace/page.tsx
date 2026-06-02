@@ -54,6 +54,7 @@ import {
   type McpStatus,
 } from '@/hooks/opencode/use-opencode-sessions';
 import { useDonnaConnectors, type KortixConnector } from '@/hooks/donna/use-donna-connectors';
+import { useComposioConnections, connectionToolkitSlug, isConnectionActive } from '@/hooks/donna/use-composio';
 import { useSkills } from '@/features/skills/hooks';
 import { getSkillSource, type Skill } from '@/features/skills/types';
 import { openTabAndNavigate } from '@/stores/tab-store';
@@ -76,13 +77,13 @@ interface WorkspaceItem {
   kind: ItemKind;
   scope: ItemScope;
   meta?: string;
-  raw?: Agent | Skill | Command | KortixConnector | { toolId: string; server?: string } | { serverName: string; status: McpStatus };
+  raw?: Agent | Skill | Command | DonnaConnector | { toolId: string; server?: string } | { serverName: string; status: McpStatus };
 }
 
 const COMPOSER_PRESETS: Record<WorkspaceComposerKind, { title: string; prompt: string }> = {
-  agent:   { title: 'New agent',   prompt: "HEY let's build a new agent. Ask what job it should own, then scaffold it in the right workspace location and wire up any supporting skills." },
-  skill:   { title: 'New skill',   prompt: "HEY let's build a new skill. Ask what should trigger it, then create the SKILL.md and any supporting files in the right workspace location." },
-  command: { title: 'New command', prompt: "HEY let's build a new slash command. Ask what the command should do, then add it in the right workspace location and connect it to the correct agent." },
+  agent:   { title: 'New agent',   prompt: "Responda SEMPRE em português brasileiro. Vamos criar um novo agente. Me pergunte (em português) qual função ele deve ter, depois crie o arquivo dele no local certo do workspace e conecte as skills de apoio necessárias. Todas as perguntas, opções e textos devem estar em português brasileiro." },
+  skill:   { title: 'New skill',   prompt: "Responda SEMPRE em português brasileiro. Vamos criar uma nova skill. Me pergunte (em português) o que deve acioná-la, depois crie o SKILL.md e os arquivos de apoio no local certo do workspace. Todas as perguntas, opções e textos devem estar em português brasileiro." },
+  command: { title: 'New command', prompt: "Responda SEMPRE em português brasileiro. Vamos criar um novo slash command. Me pergunte (em português) o que o comando deve fazer, depois adicione-o no local certo do workspace e conecte ao agente correto. Todas as perguntas, opções e textos devem estar em português brasileiro." },
 };
 
 // ---------------------------------------------------------------------------
@@ -413,14 +414,17 @@ export default function WorkspacePage() {
   const { data: toolIds,   isLoading: lTools     } = useOpenCodeToolIds();
   const { data: mcpStatus, isLoading: lMcp       } = useOpenCodeMcpStatus();
   const { data: connectors, isLoading: lConnectors } = useDonnaConnectors();
+  const { data: composioConnections, isLoading: lComposio } = useComposioConnections();
 
-  const isLoading = lAgents || lSkills || lCommands || lTools || lMcp || lConnectors;
+  const isLoading = lAgents || lSkills || lCommands || lTools || lMcp || lConnectors || lComposio;
 
   const allItems = useMemo<WorkspaceItem[]>(() => {
     const items: WorkspaceItem[] = [];
 
     agents?.filter((a) => !a.hidden).forEach((a) => {
-      items.push({ id: `agent:${a.name}`, name: a.name, description: a.description, kind: 'agent', scope: 'project', meta: a.model?.modelID, raw: a });
+      // Donna fork: the default "general" agent is shown as "Donna" (id stays "general").
+      const displayName = a.name === 'general' ? 'donna' : a.name;
+      items.push({ id: `agent:${a.name}`, name: displayName, description: a.description, kind: 'agent', scope: 'project', meta: a.model?.modelID, raw: a });
     });
 
     skills?.filter((s) => !(s as any).hidden).forEach((s) => {
@@ -462,8 +466,26 @@ export default function WorkspacePage() {
       }
     }
 
-    return items;
-  }, [agents, skills, commands, toolIds, mcpStatus, connectors]);
+    // Composio connected accounts (Gmail, etc.) — surface them as connectors here too.
+    if (composioConnections && Array.isArray(composioConnections)) {
+      for (const conn of composioConnections) {
+        const slug = connectionToolkitSlug(conn) || 'composio';
+        items.push({
+          id: `connector:composio:${conn.id}`,
+          name: slug,
+          description: undefined,
+          kind: 'connector',
+          scope: 'external',
+          meta: `Composio · ${isConnectionActive(conn) ? 'Conectado' : (conn.status || 'pendente')}`,
+          raw: conn as any,
+        });
+      }
+    }
+
+    // Donna fork: Workspace view shows Agents, Skills and Connectors.
+    // Commands, tools and MCP servers are hidden (internal).
+    return items.filter((i) => i.kind === 'agent' || i.kind === 'skill' || i.kind === 'connector');
+  }, [agents, skills, commands, toolIds, mcpStatus, connectors, composioConnections]);
 
   const kindCounts = useMemo(() => {
     const c: Record<KindFilter, number> = { all: allItems.length, agent: 0, skill: 0, command: 0, tool: 0, mcp: 0, connector: 0 };
@@ -512,10 +534,8 @@ export default function WorkspacePage() {
     { value: 'all'       as KindFilter, label: 'All' },
     { value: 'agent'     as KindFilter, label: 'Agents' },
     { value: 'skill'     as KindFilter, label: 'Skills' },
-    { value: 'command'   as KindFilter, label: 'Commands' },
-    { value: 'tool'      as KindFilter, label: 'Tools' },
-    { value: 'mcp'       as KindFilter, label: 'MCP' },
     { value: 'connector' as KindFilter, label: 'Connectors' },
+    // Donna fork: Commands, Tools and MCP hidden from the Workspace view.
   ] as const;
   return (
     <>
@@ -664,7 +684,10 @@ export default function WorkspacePage() {
                         id: item.id,
                         name: item.name,
                         description: item.description,
-                        kindLabel: KIND_CONFIG[item.kind].label,
+                        kindLabel:
+                          item.kind === 'agent' && (item.raw as Agent | undefined)?.mode === 'subagent'
+                            ? 'Subagent'
+                            : KIND_CONFIG[item.kind].label,
                         meta: item.meta ?? SCOPE_LABEL[item.scope],
                         mono: item.kind === 'command',
                       }}

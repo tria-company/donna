@@ -17,7 +17,7 @@ export default function HomeError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('[Kortix Home Error]', error);
+    console.error('[Donna Home Error]', error);
     Sentry.captureException(error);
   }, [error]);
 

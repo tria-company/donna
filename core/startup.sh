@@ -268,6 +268,13 @@ PY
   # Always ensure registry aliases exist (idempotent)
   su -s /bin/sh abc -c 'ocx registry add https://master.kortix-registry.pages.dev --name kortix --cwd /workspace -q' 2>/dev/null || true
   su -s /bin/sh abc -c 'ocx registry add https://registry.kdco.dev --name kdco --cwd /workspace -q' 2>/dev/null || true
+  # Final repair AFTER ocx registry add: those commands re-serialize
+  # opencode.jsonc and re-introduce the over-escaped "\$schema", which makes
+  # OpenCode skip the workspace config ("Config ignored"). Fix it last so the
+  # file is valid when the runtime loads it.
+  if [ -f "$OPENCODE_USER_CONFIG" ]; then
+    sed -i 's/"\\\$schema"/"$schema"/g' "$OPENCODE_USER_CONFIG" 2>/dev/null || true
+  fi
 fi
 
 # ── Clean stale sqlite SHM files ─────────────────────────────────────────────

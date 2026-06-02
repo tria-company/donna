@@ -57,7 +57,12 @@ interface ModelStore {
 // LocalStorage persistence
 // ============================================================================
 
-const STORE_KEY = 'opencode-model-store-v1';
+// Bumped v1 -> v2 to discard stale per-agent model selections that pointed at
+// now-dead OpenRouter slugs (e.g. deepseek-v4-flash:free → 404 "no endpoints").
+// Bumped v2 -> v3 (Donna): the kortix-yolo provider was repointed to OpenRouter
+// with a new curated tool-capable model set, so old persisted selections
+// (Fast/Think, glm-turbo, minimax-m27, …) no longer exist. Reset to default.
+const STORE_KEY = 'opencode-model-store-v3';
 
 function loadStore(): ModelStore {
   if (typeof window === 'undefined') {

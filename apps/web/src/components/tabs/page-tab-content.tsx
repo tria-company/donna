@@ -100,12 +100,24 @@ const AdminSandboxPoolPage = lazy(() =>
 const AdminStressTestPage = lazy(() =>
 	import('@/app/(dashboard)/admin/stress-test/page'),
 );
+const AdminAccessPage = lazy(() =>
+	import('@/app/(dashboard)/admin/access/page'),
+);
 const LegacyThreadPage = lazy(() =>
 	import('@/app/(dashboard)/legacy/[threadId]/page'),
 );
 
 const TaskDetailPage = lazy(() =>
 	import('@/app/(dashboard)/tasks/[id]/page'),
+);
+
+// Donna sidebar nav targets — standalone routes that are also opened as tabs.
+const BrowserPage = lazy(() => import('@/app/(dashboard)/browser/page'));
+const DesktopPage = lazy(() => import('@/app/(dashboard)/desktop/page'));
+const ProjectsPage = lazy(() => import('@/app/(dashboard)/projects/page'));
+const ServiceManagerPage = lazy(() => import('@/app/(dashboard)/service-manager/page'));
+const TerminalPage = lazy(() =>
+	import('@/components/terminal/terminal-view').then((m) => ({ default: m.TerminalView })),
 );
 
 // ---------------------------------------------------------------------------
@@ -133,6 +145,11 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
 	'/connectors': IntegrationsPage,
 	'/files': FilesPage,
 	'/board': BoardPage,
+	'/browser': BrowserPage,
+	'/desktop': DesktopPage,
+	'/projects': ProjectsPage,
+	'/service-manager': ServiceManagerPage,
+	'/terminal': TerminalPage,
 	'/tunnel': TunnelOverviewPage,
 	...(DEPLOYMENTS_ENABLED ? { '/deployments': DeploymentsPage } : {}),
 	// Admin
@@ -141,6 +158,7 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
 	'/admin/notifications': AdminNotificationsPage,
 	'/admin/sandbox-pool': AdminSandboxPoolPage,
 	'/admin/stress-test': AdminStressTestPage,
+	'/admin/access': AdminAccessPage,
 };
 
 function resolveComponent(routeKey: string): { Component: ComponentType<any>; params?: Record<string, string> } | null {

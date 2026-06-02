@@ -123,6 +123,11 @@ export function formatModelString(model: ModelKey): string {
   return `${model.providerID}/${model.modelID}`;
 }
 
+// Providers hidden from the model picker. `kortix` is the legacy minimax route
+// (disabled at the sandbox anyway). `kortix-yolo` is NOT hidden here: the Donna
+// fork repurposed it to expose the curated OpenRouter model set in the picker.
+const HIDDEN_MODEL_PROVIDERS = new Set(['kortix']);
+
 // ============================================================================
 // Hook
 // ============================================================================
@@ -141,9 +146,23 @@ export function useOpenCodeLocal({
     const result: FlatModel[] = [];
     for (const p of all) {
       if (!connected.includes(p.id)) continue;
+      // Hide legacy Kortix-branded routes (see HIDDEN_MODEL_PROVIDERS). kortix-yolo
+      // is intentionally NOT hidden — it carries the curated OpenRouter picker models.
+      if (HIDDEN_MODEL_PROVIDERS.has(p.id)) continue;
       for (const [modelID, model] of Object.entries(p.models)) {
         const caps = (model as any).capabilities;
         const modalities = (model as any).modalities;
+        // Only surface models that support tool/function calling — the agent
+        // requires tools, and non-tool models fail with OpenRouter's
+        // "No endpoints found that support tool use". Filtering here removes
+        // them everywhere (model picker, default resolution, recents).
+        const toolcall = caps ? (caps.toolcall ?? false) : ((model as any).tool_call ?? false);
+        // The OpenRouter Auto Router picks a tool-capable model at request time,
+        // so keep it even if its own metadata doesn't advertise toolcall.
+        const isAutoRouter = modelID === 'openrouter/auto' || modelID.endsWith('/auto');
+        // kortix-yolo is a hand-curated OpenRouter set where every model supports
+        // tools (verified), so keep them even if /provider metadata omits tool_call.
+        if (!toolcall && !isAutoRouter && p.id !== 'kortix-yolo') continue;
         result.push({
           providerID: p.id,
           providerName: p.name,

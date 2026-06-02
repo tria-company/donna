@@ -26,6 +26,14 @@ import {
   AlertTriangle,
   Copy,
   ShieldAlert,
+  Server,
+  ShieldCheck,
+  FolderKanban,
+  Calendar,
+  MessageSquare,
+  Cable,
+  BookOpen,
+  type LucideIcon,
 } from 'lucide-react';
 import posthog from 'posthog-js';
 
@@ -531,7 +539,7 @@ function SidebarUpdateIndicator({ collapsed }: { collapsed: boolean }) {
           <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
         </span>
         <span className="text-xs font-semibold text-foreground truncate min-w-0">
-          {currentChannel === 'dev' ? 'New dev build' : 'New Kortix version'}
+          {currentChannel === 'dev' ? 'New dev build' : 'New Donna version'}
         </span>
         <span className="flex-1" />
         <span className="text-[10px] text-muted-foreground flex-shrink-0">v{latestVersion}</span>
@@ -606,6 +614,51 @@ function UserProfileSection({ user }: { user: { name: string; email: string; ava
 // Sessions + Legacy Threads Accordion
 // ============================================================================
 
+// ── Donna menu: flat nav link + collapsible nav group ──────────────────────
+interface NavLinkItem {
+  label: string;
+  icon: LucideIcon;
+  href: string;
+  tabType?: string;
+  tabId?: string;
+}
+
+function SidebarNavLink({ icon: Icon, label, href, tabType = 'page', tabId }: NavLinkItem) {
+  const { isMobile, setOpenMobile } = useSidebar();
+  return (
+    <Button
+      variant="sidebar"
+      className="rounded-lg"
+      onClick={() => {
+        openTabAndNavigate({ id: tabId || `page:${href}`, title: label, type: tabType, href });
+        if (isMobile) setOpenMobile(false);
+      }}
+    >
+      <Icon className="h-4 w-4 flex-shrink-0 text-sidebar-foreground" />
+      <span className="flex-1 text-left">{label}</span>
+    </Button>
+  );
+}
+
+function SidebarNavGroup({ icon: Icon, label, items }: { icon: LucideIcon; label: string; items: NavLinkItem[] }) {
+  return (
+    <Collapsible className="group/navgrp">
+      <CollapsibleTrigger asChild>
+        <Button variant="sidebar" className="rounded-lg">
+          <Icon className="h-4 w-4 flex-shrink-0 text-sidebar-foreground" />
+          <span className="flex-1 text-left">{label}</span>
+          <ChevronDown className="h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 group-data-[state=closed]/navgrp:-rotate-90" />
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="space-y-0.5 pt-0.5 pl-3">
+        {items.map((it) => (
+          <SidebarNavLink key={it.href} {...it} />
+        ))}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
 function SidebarSections() {
   const [legacyOpen, setLegacyOpen] = React.useState(false);
   const { data: legacyData, isLoading: legacyLoading } = useLegacyThreads();
@@ -618,7 +671,9 @@ function SidebarSections() {
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const { data: migrateStatus } = useMigrateAllStatus(migrateAllStarted);
 
-  const hasLegacy = !legacyLoading && legacyData && legacyData.threads.length > 0;
+  // "Previous Chats" (legacy threads) removed from the sidebar — all chats are
+  // sessions. Legacy threads remain reachable via /legacy routes if needed.
+  const hasLegacy = false;
   const isMigrating = migrateStatus?.status === 'running';
   const migrateDone = migrateStatus?.status === 'done';
 
@@ -651,7 +706,7 @@ function SidebarSections() {
           <CollapsibleTrigger asChild>
             <Button variant="sidebar" className="rounded-lg">
               <ListTree className="h-4 w-4 flex-shrink-0 text-sidebar-foreground" />
-              <span className="flex-1 text-left">Sessions</span>
+              <span className="flex-1 text-left">Sessões</span>
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground transition-transform duration-200 group-data-[state=closed]/sessions:-rotate-90" />
             </Button>
           </CollapsibleTrigger>
@@ -1244,7 +1299,7 @@ export function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) 
       {/* ====== HEADER: Logo + collapse/expand ====== */}
       <SidebarHeader className="pt-3 pb-0 overflow-visible">
         <div className="relative flex h-[32px] items-center px-3 justify-between">
-          {/* Collapsed: Kortix symbol (always visible), chevron on hover */}
+          {/* Collapsed: Donna symbol (always visible), chevron on hover */}
           {effectiveState === 'collapsed' && (
             <div
               className="group/collapsed absolute inset-0 flex items-center justify-center cursor-pointer"
@@ -1393,7 +1448,7 @@ export function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) 
               className="group/row rounded-lg"
             >
               <SquarePen className="h-4 w-4 flex-shrink-0 text-sidebar-foreground" />
-              <span className="flex-1 text-left">{createSession.isPending ? 'Creating...' : 'New session'}</span>
+              <span className="flex-1 text-left">{createSession.isPending ? 'Criando...' : 'Nova sessão'}</span>
               <KbdHint mod={isMac ? '\u2318' : 'Ctrl'} letter="J" />
             </Button>
 
@@ -1415,13 +1470,28 @@ export function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) 
               className="group/row rounded-lg"
             >
               <Search className="h-4 w-4 flex-shrink-0 text-sidebar-foreground" />
-              <span className="flex-1 text-left">Search</span>
+              <span className="flex-1 text-left">Buscar</span>
               <KbdHint mod={isMac ? '\u2318' : 'Ctrl'} letter="K" />
             </Button>
 
-            {/* Files lives exclusively on the right sidebar — no redundant
-                entry here. Board is also right-sidebar-only (see
-                menu-registry entry `board`). */}
+            {/* Donna single-menu nav (mirrors the AIFirst layout) */}
+            <SidebarNavGroup icon={Server} label="Serviços" items={[
+              { label: 'Triggers', icon: Calendar, href: '/scheduled-tasks' },
+              { label: 'Channels', icon: MessageSquare, href: '/channels' },
+              { label: 'Tunnel', icon: Cable, href: '/tunnel' },
+            ]} />
+
+            <SidebarNavGroup icon={FolderKanban} label="Projetos" items={[
+              { label: 'Todos os projetos', icon: FolderKanban, href: '/projects' },
+              { label: 'Board', icon: ListTree, href: '/board' },
+            ]} />
+
+            <SidebarNavLink icon={BookOpen} label="Conhecimento" href="/knowledge" />
+
+            {/* Admin-only: gerenciar acesso de usuários por email */}
+            {isAdmin && (
+              <SidebarNavLink icon={ShieldCheck} label="Acesso" href="/admin/access" />
+            )}
           </nav>
 
           <SidebarSections />

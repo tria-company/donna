@@ -133,7 +133,7 @@ export function AppProviders({
           <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
             {content}
           </div>
-          <SidebarRight />
+          {/* Right sidebar removed — single-menu layout (AIFirst-style). */}
         </RightSidebarProvider>
       </SidebarInset>
       {sidebarSiblings}

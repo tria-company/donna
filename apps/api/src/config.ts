@@ -141,6 +141,10 @@ const envSchema = z.object({
   // KORTIX_URL is auto-derived from PORT if not explicitly set (see validateEnv).
   KORTIX_URL:                  optStr,
   KORTIX_YOLO_URL:             optUrl('https://api-yolo.kortix.com/v1'),
+  // Donna fork: the agent LLM routes through OpenRouter (api-yolo.kortix.com is
+  // Kortix's SaaS gateway — unreachable for self-hosted forks). Falls back to
+  // OPENROUTER_API_KEY in sandbox-auth if this is unset.
+  KORTIX_YOLO_API_KEY:         optStr,
   ALLOWED_SANDBOX_PROVIDERS:   optStrDefault('local_docker'),
   SANDBOX_IMAGE:               optStr,  // overridden below if empty
   KORTIX_LOCAL_IMAGES:         optBoolFalse,
@@ -155,6 +159,13 @@ const envSchema = z.object({
   // ── Internal Service Key (auto-generated if missing — never fails) ───────
   INTERNAL_SERVICE_KEY:        optStr,
 
+  // ── Access control / admin (self-host config — no DB writes needed) ──────
+  // Comma-separated emails that are platform admins regardless of DB role.
+  PLATFORM_ADMIN_EMAILS:       optStr,
+  // 'false' forces invite-only (overrides the platform_settings DB value);
+  // 'true' forces open signups; empty defers to the DB setting.
+  SIGNUPS_ENABLED:             optStr,
+
   // ── Frontend (optional) ──────────────────────────────────────────────────
   FRONTEND_URL:                optUrl('http://localhost:3000'),
 
@@ -165,6 +176,10 @@ const envSchema = z.object({
   PIPEDREAM_PROJECT_ID:        optStr,
   PIPEDREAM_ENVIRONMENT:       optStrDefault('development'),
   PIPEDREAM_WEBHOOK_SECRET:    optStr,
+
+  // ── Composio (MCP-based integrations; used when INTEGRATION_AUTH_PROVIDER="composio") ──
+  COMPOSIO_API_KEY:            optStr,
+  COMPOSIO_BASE_URL:           optStrDefault('https://backend.composio.dev'),
 
   // ── Tunnel (optional, all have sane defaults) ────────────────────────────
   TUNNEL_SIGNING_SECRET:             optStr,
@@ -381,6 +396,10 @@ export const config = {
   SUPABASE_URL: env.SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY,
 
+  // ─── Access control / admin ───────────────────────────────────────────────
+  PLATFORM_ADMIN_EMAILS: env.PLATFORM_ADMIN_EMAILS,
+  SIGNUPS_ENABLED: env.SIGNUPS_ENABLED,
+
   // ─── API Key Hashing ──────────────────────────────────────────────────────
   API_KEY_SECRET: env.API_KEY_SECRET,
 
@@ -445,6 +464,7 @@ export const config = {
   // ─── Sandbox Provisioning (Platform) ──────────────────────────────────────
   KORTIX_URL: env.KORTIX_URL,
   KORTIX_YOLO_URL: env.KORTIX_YOLO_URL,
+  KORTIX_YOLO_API_KEY: env.KORTIX_YOLO_API_KEY,
   ALLOWED_SANDBOX_PROVIDERS: allowedProviders,
   SANDBOX_IMAGE: env.SANDBOX_IMAGE || 'kortix/computer:latest',
   KORTIX_LOCAL_IMAGES: env.KORTIX_LOCAL_IMAGES,
@@ -508,6 +528,10 @@ export const config = {
   PIPEDREAM_PROJECT_ID: env.PIPEDREAM_PROJECT_ID,
   PIPEDREAM_ENVIRONMENT: env.PIPEDREAM_ENVIRONMENT,
   PIPEDREAM_WEBHOOK_SECRET: env.PIPEDREAM_WEBHOOK_SECRET,
+
+  // ─── Composio (MCP-based integrations) ─────────────────────────────────────
+  COMPOSIO_API_KEY: env.COMPOSIO_API_KEY,
+  COMPOSIO_BASE_URL: env.COMPOSIO_BASE_URL,
 
   // ─── Tunnel (Reverse-Tunnel to Local Machine) ──────────────────────────────
   TUNNEL_SIGNING_SECRET: env.TUNNEL_SIGNING_SECRET,

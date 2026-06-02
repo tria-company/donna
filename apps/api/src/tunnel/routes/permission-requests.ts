@@ -48,6 +48,10 @@ export function createPermissionRequestsRouter(): Hono {
 
   router.get('/stream', async (c: any) => {
     const accountId = c.get('userId') as string;
+    // SSE returns a raw streaming Response, which bypasses Hono's global cors()
+    // middleware (it can't attach headers to an already-streaming body). Echo
+    // the CORS headers here so the browser doesn't block the EventSource/fetch.
+    const origin = c.req.header('Origin') || '';
 
     return new Response(
       new ReadableStream({
@@ -89,6 +93,13 @@ export function createPermissionRequestsRouter(): Hono {
           'Content-Type': 'text/event-stream',
           'Cache-Control': 'no-cache',
           'Connection': 'keep-alive',
+          ...(origin
+            ? {
+                'Access-Control-Allow-Origin': origin,
+                'Access-Control-Allow-Credentials': 'true',
+                'Vary': 'Origin',
+              }
+            : {}),
         },
       },
     );

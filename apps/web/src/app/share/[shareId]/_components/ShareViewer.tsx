@@ -304,12 +304,12 @@ function AssistantBlock({
 }) {
   return (
     <div className="flex flex-col gap-2">
-      {/* Agent header — Kortix logomark (matches Suna AgentHeader for name="Kortix") */}
+      {/* Agent header — Donna logomark (matches Suna AgentHeader for name="Donna") */}
       <div className="flex items-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/donna-logomark-white.svg"
-          alt="Kortix"
+          src="/images/Tipografia.png"
+          alt="Donna"
           className="dark:invert-0 invert flex-shrink-0"
           style={{ height: '12px', width: 'auto' }}
         />

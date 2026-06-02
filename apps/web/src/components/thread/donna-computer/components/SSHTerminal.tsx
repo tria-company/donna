@@ -92,6 +92,7 @@ export const SSHTerminal = memo(function SSHTerminal({ sandboxId, className }: S
   const fitAddonRef = useRef<FitAddon | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
   const connectionIdRef = useRef<number>(0);
+  const reconnectAttemptsRef = useRef(0);
   const invalidateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
@@ -194,6 +195,7 @@ export const SSHTerminal = memo(function SSHTerminal({ sandboxId, className }: S
             term.writeln(`\x1b[33m${message.message}\x1b[0m`);
             break;
           case 'connected':
+            reconnectAttemptsRef.current = 0;
             setStatus('connected');
             term.writeln(`\x1b[32m${message.message}\x1b[0m`);
             term.writeln('');
@@ -214,13 +216,13 @@ export const SSHTerminal = memo(function SSHTerminal({ sandboxId, className }: S
             break;
         }
       } catch (e) {
-        console.error('[SSHTerminal] Parse error:', e);
+        console.warn('[SSHTerminal] Parse error:', e);
       }
     };
 
     ws.onerror = (error) => {
       if (connectionIdRef.current !== myConnectionId) return;
-      console.error('[SSHTerminal] WebSocket error:', error);
+      console.warn('[SSHTerminal] WebSocket error (will retry):', error);
       setStatus('error');
     };
 
@@ -229,6 +231,18 @@ export const SSHTerminal = memo(function SSHTerminal({ sandboxId, className }: S
       console.log('[SSHTerminal] WebSocket closed:', event.code);
       wsRef.current = null;
       setStatus('disconnected');
+      // Auto-reconnect on abnormal close (dev HMR/StrictMode can abort the
+      // handshake → 1006; transient drops too). The server side is verified OK,
+      // so a bounded retry restores the shell without user action.
+      if (event.code !== 1000 && reconnectAttemptsRef.current < 4) {
+        reconnectAttemptsRef.current += 1;
+        setTimeout(() => {
+          if (connectionIdRef.current === myConnectionId && !wsRef.current && xtermRef.current) {
+            connectWebSocket(accessToken, xtermRef.current);
+          }
+        }, 700);
+        return;
+      }
       term.writeln('\x1b[33mConnection closed\x1b[0m');
     };
   }, [sandboxId]);

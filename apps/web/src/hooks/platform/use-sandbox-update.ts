@@ -109,6 +109,12 @@ function isNewerDevVersion(current: string, latest: string): boolean {
   return current !== latest;
 }
 
+// Hide sandbox update notices for this deployment: the sandbox runs a custom
+// Daytona snapshot (s6/PID1 fix + PT-BR OCR + Donna branding) that the upstream
+// one-click image update would overwrite and likely break. Flip to false to
+// restore upstream update prompts.
+const UPDATES_DISABLED = true;
+
 const POLL_INTERVAL_MS = 2_000;
 const TERMINAL_PHASES: UpdatePhase[] = ['complete', 'failed'];
 
@@ -142,7 +148,7 @@ export function useSandboxUpdate(currentVersion: string | null) {
   const latestQuery = useQuery({
     queryKey: ['sandbox', 'latest-version', currentChannel],
     queryFn: () => getLatestSandboxVersion(currentChannel),
-    enabled: !!sandbox && !isLocalDocker,
+    enabled: !!sandbox && !isLocalDocker && !UPDATES_DISABLED,
     staleTime: 5 * 60 * 1000,        // re-fetch from GitHub at most every 5 min
     refetchInterval: 10 * 60 * 1000, // background poll every 10 min
     refetchOnWindowFocus: true,       // re-check when user returns to the tab
@@ -152,6 +158,7 @@ export function useSandboxUpdate(currentVersion: string | null) {
   const latestChannel = (latestQuery.data?.channel as VersionChannel) ?? currentChannel;
 
   const updateAvailable = useMemo(() => {
+    if (UPDATES_DISABLED) return false;
     if (isLocalDocker) return false;
     if (!currentVersion || !latestVersion) return false;
     if (currentChannel === 'dev') {
@@ -224,7 +231,9 @@ export function useSandboxUpdate(currentVersion: string | null) {
   // the tab regains focus so refresh / second-tab handoff can recover active
   // updates without hammering /update/status forever after terminal states.
   useEffect(() => {
-    if (!sandbox || isLocalDocker) return;
+    // Updates disabled for this deployment — never poll/surface update status
+    // (incl. a stale "failed" status), so the update cards stay hidden.
+    if (!sandbox || isLocalDocker || UPDATES_DISABLED) return;
     let cancelled = false;
     const check = async () => {
       try {

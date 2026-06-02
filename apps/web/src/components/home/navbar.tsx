@@ -46,7 +46,7 @@ function PlayIcon({ className }: { className?: string }) {
 }
 
 // macOS-style power button
-function PowerButton({ href, onClick, label = 'Launch Kortix' }: { href?: string; onClick?: () => void; label?: string }) {
+function PowerButton({ href, onClick, label = 'Launch Donna' }: { href?: string; onClick?: () => void; label?: string }) {
   const [hovered, setHovered] = useState(false);
 
   const inner = (
@@ -304,7 +304,7 @@ export function Navbar({ isAbsolute = false }: NavbarProps) {
               onClick={() => { trackCtaSignup(); router.push(ctaLink); }}
               variant="ghost"
               size="icon"
-              aria-label="Launch Kortix"
+              aria-label="Launch Donna"
               className="opacity-80 hover:opacity-100"
             >
               <svg viewBox="0 0 24 24" className="size-[20px]" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">

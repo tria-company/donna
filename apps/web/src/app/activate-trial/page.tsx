@@ -109,7 +109,7 @@ export default function ActivateTrialPage() {
           <div>
             <CardTitle className="text-2xl font-medium flex items-center justify-center gap-2">
               <DonnaLogo />
-              <span>Welcome to Kortix</span>
+              <span>Welcome to Donna</span>
             </CardTitle>
             <CardDescription className="mt-2">
               Start your journey with a 7-day free trial

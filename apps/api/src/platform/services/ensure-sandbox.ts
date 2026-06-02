@@ -18,6 +18,7 @@ import {
   SANDBOX_INIT_MAX_ATTEMPTS,
 } from './sandbox-init-state';
 import { registerCreator as ensureSandboxCreatorMember } from '../../teams';
+import { maybeCaptureSeed, restoreSeed } from './workspace-seed';
 
 export interface EnsureSandboxResult {
   row: typeof sandboxes.$inferSelect;
@@ -53,19 +54,36 @@ export async function ensureSandbox(opts: {
   await db.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${accountId}))`);
 
   const existing = await findExistingSandbox(accountId);
-  if (existing) return existing;
+  if (existing) {
+    // Existing sandbox already has the user's files on disk; keep the durable
+    // seed fresh (debounced, fire-and-forget — never blocks the hot path).
+    if (existing.row.status === 'active') {
+      maybeCaptureSeed(accountId, existing.row.externalId, existing.row.provider);
+    }
+    return existing;
+  }
 
   const reactivated = await tryReactivateStaleSandbox(accountId);
-  if (reactivated) return reactivated;
+  if (reactivated) {
+    maybeCaptureSeed(accountId, reactivated.row.externalId, reactivated.row.provider);
+    return reactivated;
+  }
 
   await checkProviderCredits(providerName, accountId, opts.isIncluded);
 
   if (config.isPoolEnabled()) {
     const claimed = await tryClaimFromPool(accountId, userId, opts);
-    if (claimed) return claimed;
+    if (claimed) {
+      // Fresh sandbox from the pool → restore the account's custom opencode
+      // project (agents/skills/commands) so they survive re-provisioning.
+      await restoreSeed(accountId, claimed.row.externalId, claimed.row.provider);
+      return claimed;
+    }
   }
 
-  return provisionNewSandbox(accountId, userId, providerName, opts);
+  const provisioned = await provisionNewSandbox(accountId, userId, providerName, opts);
+  await restoreSeed(accountId, provisioned.row.externalId, provisioned.row.provider);
+  return provisioned;
 }
 
 async function findExistingSandbox(accountId: string): Promise<EnsureSandboxResult | null> {

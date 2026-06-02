@@ -918,6 +918,10 @@ export function useOpenCodeProviders() {
     },
     placeholderData: () => getLSCache<ProviderListResponse>(LS_PROVIDERS),
     enabled: runtimeReady,
+    // Infinity on purpose: the /provider catalog response is several MB and
+    // gets written to localStorage synchronously — refetching it on every mount
+    // froze the workspace. A hard refresh (empty in-memory cache) already
+    // refetches it once, which is enough to pick up provider/config changes.
     staleTime: Infinity,
     gcTime: 10 * 60 * 1000,
   });

@@ -129,6 +129,13 @@ async function computeEntry(
   };
 }
 
+// Dedup concurrent cache-misses for the same key. Without this, a frontend
+// reconnect storm fires many simultaneous proxy requests for the SAME
+// (sandbox, user); each misses the empty cache and runs computeEntry's ~5 DB
+// queries, multiplying load until the transaction pooler is saturated and every
+// query hangs. With dedup, N concurrent misses collapse to ONE computeEntry.
+const inFlight = new Map<string, Promise<CacheEntry>>();
+
 async function getOrCompute(
   previewSandboxId: string,
   userId: string,
@@ -136,9 +143,30 @@ async function getOrCompute(
   const key = cacheKey(previewSandboxId, userId);
   const cached = previewContextCache.get(key);
   if (cached && cached.expiresAt > Date.now()) return cached;
-  const fresh = await computeEntry(previewSandboxId, userId);
-  previewContextCache.set(key, fresh);
-  return fresh;
+
+  const pending = inFlight.get(key);
+  if (pending) return pending;
+
+  const promise = (async (): Promise<CacheEntry> => {
+    try {
+      const fresh = await computeEntry(previewSandboxId, userId);
+      previewContextCache.set(key, fresh);
+      return fresh;
+    } catch (err) {
+      // Transient DB failure (e.g. pooler momentarily out of slots): serve the
+      // last-known-good entry (even if expired) instead of throwing, so a brief
+      // stall doesn't lock the user out AND doesn't turn every subsequent
+      // request into a fresh DB retry that re-saturates the pooler.
+      const stale = previewContextCache.get(key);
+      if (stale) return stale;
+      throw err;
+    } finally {
+      inFlight.delete(key);
+    }
+  })();
+
+  inFlight.set(key, promise);
+  return promise;
 }
 
 // ─── Public API ─────────────────────────────────────────────────────────────

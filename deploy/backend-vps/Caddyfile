@@ -1,0 +1,10 @@
+# Caddy — TLS automático (Let's Encrypt) + reverse proxy pro backend.
+# Troque o domínio e o e-mail. DNS: aponte api.SEU-DOMINIO.com (A/AAAA) pro IP da VPS.
+
+{
+	email voce@seu-dominio.com
+}
+
+api.SEU-DOMINIO.com {
+	reverse_proxy api:8008
+}

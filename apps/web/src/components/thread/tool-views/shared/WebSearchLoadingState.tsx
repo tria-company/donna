@@ -335,7 +335,7 @@ export function WebSearchLoadingState({
                     {query}
                   </span>
 
-                  {/* Kortix loading animation */}
+                  {/* Donna loading animation */}
                   <DonnaLoader customSize={16} />
                 </motion.div>
               );

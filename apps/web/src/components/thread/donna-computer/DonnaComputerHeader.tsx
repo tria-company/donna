@@ -32,7 +32,7 @@ interface DonnaComputerHeaderProps {
 }
 
 /**
- * Shared header component for all Kortix Computer views (Files, File Viewer, Browser).
+ * Shared header component for all Donna Computer views (Files, File Viewer, Browser).
  * Ensures consistent styling and prevents layout jumps when switching tabs.
  * 
  * ALL styling is controlled here - consumers only pass data props.

@@ -153,6 +153,12 @@ export function flattenModels(providers: ProviderListResponse | undefined): Flat
 // Agent Selector
 // ============================================================================
 
+// Display-name overrides — the default "general" agent is branded "Donna".
+const AGENT_DISPLAY_OVERRIDES: Record<string, string> = { general: 'donna' };
+function agentLabel(name: string): string {
+  return AGENT_DISPLAY_OVERRIDES[(name || '').toLowerCase()] ?? name;
+}
+
 export function AgentSelector({
   agents,
   selectedAgent,
@@ -207,7 +213,7 @@ export function AgentSelector({
   }, [subAgents, search]);
 
   const currentAgent = agents.find((a) => a.name === selectedAgent) || agents.filter((a) => !a.hidden)[0];
-  const displayName = currentAgent?.name || 'Agent';
+  const displayName = currentAgent ? agentLabel(currentAgent.name) : 'Agent';
 
   return (
     <CommandPopover open={open} onOpenChange={setOpen}>
@@ -261,7 +267,7 @@ export function AgentSelector({
                         'truncate text-[13px] leading-tight capitalize',
                         isSelected ? 'font-semibold text-foreground' : 'font-medium text-foreground/90',
                       )}>
-                        {agent.name}
+                        {agentLabel(agent.name)}
                       </div>
                       {agent.description && (
                         <p className="truncate text-[11px] text-muted-foreground/55 leading-snug mt-1">{agent.description}</p>
@@ -294,7 +300,7 @@ export function AgentSelector({
                         'truncate text-[13px] leading-tight capitalize',
                         isSelected ? 'font-semibold text-foreground' : 'font-medium text-foreground/90',
                       )}>
-                        {agent.name}
+                        {agentLabel(agent.name)}
                       </div>
                       {agent.description && (
                         <p className="truncate text-[11px] text-muted-foreground/55 leading-snug mt-1">{agent.description}</p>
@@ -1022,7 +1028,7 @@ export interface MentionItem {
 export interface TrackedMention {
   kind: 'file' | 'agent' | 'session';
   label: string;
-  value?: string; // session ID for session mentions
+  value?: string; // session ID for session mentions; real agent name for agent mentions (label may be branded, e.g. "Donna")
 }
 
 function MentionPopover({
@@ -1698,8 +1704,8 @@ export function SessionChatInput({
     if (!mentionQuery) return [];
     const q = mentionQuery.query.toLowerCase();
     const agentItems: MentionItem[] = agents
-      .filter((a) => (a.name || '').toLowerCase().includes(q))
-      .map((a) => ({ kind: 'agent' as const, label: a.name || '', value: a.name || '' }));
+      .filter((a) => `${a.name || ''} ${agentLabel(a.name || '')}`.toLowerCase().includes(q))
+      .map((a) => ({ kind: 'agent' as const, label: agentLabel(a.name || ''), value: a.name || '' }));
 
     // Session items: filter by title, session ID, or changed file paths, exclude current/child/archived
     const sessionItems: MentionItem[] = (allSessions ?? [])
@@ -1872,7 +1878,9 @@ export function SessionChatInput({
       {
         kind: item.kind,
         label: item.label,
-        ...(item.kind === 'session' ? { value: item.value } : {}),
+        // Sessions carry their id; agents carry the real agent name (label may be
+        // a branded display name like "Donna" for the "general" agent).
+        ...(item.kind === 'session' || item.kind === 'agent' ? { value: item.value } : {}),
       },
     ]);
     setMentionQuery(null);
@@ -2291,6 +2299,9 @@ export function SessionChatInput({
                 <TooltipContent side="top"><p>Attach files</p></TooltipContent>
               </Tooltip>
 
+              {/* Seletor de AGENTE ocultado a pedido — a Donna usa o agente padrão e
+                  o usuário escolhe a LLM (modelo) no seletor ao lado. Para reexibir,
+                  descomente o bloco <AgentSelector> abaixo.
               {agents.length > 0 && onAgentChange && (
                 <AgentSelector
                   agents={agents}
@@ -2298,6 +2309,7 @@ export function SessionChatInput({
                   onSelect={onAgentChange}
                 />
               )}
+              */}
               {models.length > 0 && onModelChange && (
                 <ModelSelector
                   models={models}
@@ -2339,7 +2351,7 @@ export function SessionChatInput({
 
               {isBusy && onStop && !lockForQuestion && (
                 <div className="relative flex items-center">
-                  {/* ESC hint — matches Kortix tooltip styling (bg-primary rounded-2xl) */}
+                  {/* ESC hint — matches Donna tooltip styling (bg-primary rounded-2xl) */}
                   {escCount > 0 && (
                     <div
                       className="absolute bottom-full right-1/2 translate-x-1/2 mb-2 pointer-events-none animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-2 duration-150"

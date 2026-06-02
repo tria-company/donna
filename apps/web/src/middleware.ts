@@ -286,10 +286,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // FAST PATH: authenticated users hitting the homepage go straight to their
-  // active workspace when known. If no active cookie exists, send them to the
-  // dashboard and let useSandbox() register the primary workspace client-side.
-  if (pathname === '/' && user) {
+  // Main screen = the agent dashboard. Anyone hitting the homepage goes
+  // straight to their active workspace dashboard when known, otherwise to the
+  // bare /dashboard. Unauthenticated users land on /dashboard, which the auth
+  // gate below bounces to /auth (and back to /dashboard after login). This
+  // replaces the marketing landing as the app entry point (internal-tool mode).
+  if (pathname === '/') {
     return NextResponse.redirect(
       new URL(
         activeInstanceId ? buildInstancePath(activeInstanceId, '/dashboard') : '/dashboard',

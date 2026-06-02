@@ -536,7 +536,7 @@ function HighlightMentions({
     return result;
   }, [cleanText, agentNames, sessions]);
 
-  // Uniform monochrome mention style — Kortix brand is strictly neutral, so
+  // Uniform monochrome mention style — Donna brand is strictly neutral, so
   // every mention kind (file / agent / session) renders identically
   // as an underlined foreground chip. Kind is distinguished by click target.
   const mentionClass =
@@ -3242,7 +3242,7 @@ function SessionTurn({
   //
   // Structure:
   //   1. User message + actions
-  //   2. Kortix logo
+  //   2. Donna logo
   //   3. Steps trigger (spinner/chevron + status + duration) — if working || hasSteps
   //   4. Collapsible steps (if expanded): all parts EXCEPT response part
   //   5. Answered question parts (if collapsed + has answered questions)
@@ -3391,13 +3391,13 @@ function SessionTurn({
         </div>
       )}
 
-      {/* Kortix logo header */}
+      {/* Donna logo header */}
       {(working || hasSteps || hasReasoning) && (
         <div className="flex items-center gap-2 mt-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/donna-logomark-white.svg"
-            alt="Kortix"
+            src="/images/Tipografia.png"
+            alt="Donna"
             className="dark:invert-0 invert flex-shrink-0 h-[14px] w-auto"
           />
         </div>
@@ -3670,7 +3670,7 @@ function SessionTurn({
           </div>
         )}
 
-      {/* Kortix logo — shown when there are no steps and not working (otherwise logo is already above the steps trigger) */}
+      {/* Donna logo — shown when there are no steps and not working (otherwise logo is already above the steps trigger) */}
       {!hasSteps &&
         !hasReasoning &&
         !working &&
@@ -3678,8 +3678,8 @@ function SessionTurn({
           <div className="flex items-center gap-2 mt-3 mb-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/donna-logomark-white.svg"
-              alt="Kortix"
+              src="/images/Tipografia.png"
+              alt="Donna"
               className="dark:invert-0 invert flex-shrink-0 h-[14px] w-auto"
             />
           </div>
@@ -4124,11 +4124,6 @@ export function SessionChat({
       const pendingPrompt = sessionStorage.getItem(
         `opencode_pending_prompt:${sessionId}`,
       );
-      console.log('[session-chat] pending prompt check', {
-        sessionId,
-        hasPending: !!pendingPrompt,
-        attempt,
-      });
       if (!pendingPrompt) {
         // Retry up to 5 times with 50ms delay to handle race condition
         if (attempt < 5) {
@@ -5318,7 +5313,9 @@ export function SessionChat({
         .map((m) => ({ path: m.label, name: m.label }));
       const agentMentionRefs: AgentRefLike[] = (mentions ?? [])
         .filter((m) => m.kind === 'agent' && m.label)
-        .map((m) => ({ name: m.label }));
+        // Use the real agent name (value) for resolution; label may be a branded
+        // display name (e.g. "Donna" for the "general" agent).
+        .map((m) => ({ name: m.value || m.label }));
 
       // Play send sound
       playSound('send');
@@ -6045,8 +6042,8 @@ export function SessionChat({
                     <div className="flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src="/donna-logomark-white.svg"
-                        alt="Kortix"
+                        src="/images/Tipografia.png"
+                        alt="Donna"
                         className="dark:invert-0 invert flex-shrink-0 h-[14px] w-auto"
                       />
                       {isRetrying && (
@@ -6073,8 +6070,8 @@ export function SessionChat({
                     <div className="flex items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src="/donna-logomark-white.svg"
-                        alt="Kortix"
+                        src="/images/Tipografia.png"
+                        alt="Donna"
                         className="dark:invert-0 invert flex-shrink-0 h-[14px] w-auto"
                       />
                       <div className="text-sm text-muted-foreground">
@@ -6152,8 +6149,8 @@ export function SessionChat({
                   <div className="flex items-center gap-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src="/donna-logomark-white.svg"
-                      alt="Kortix"
+                      src="/images/Tipografia.png"
+                      alt="Donna"
                       className="dark:invert-0 invert flex-shrink-0 h-[14px] w-auto"
                     />
                   </div>

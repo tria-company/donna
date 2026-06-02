@@ -3,6 +3,7 @@ import { execSync } from 'child_process';
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
 import { config, SANDBOX_VERSION } from '../../config';
+import { DOCKER_EXEC_SHELL } from '../../shared/exec-shell';
 import { generateSandboxKeyPair } from '../../shared/crypto';
 import { getAuthCandidates, getSandboxServiceKeyByExternalId } from '../services/sandbox-auth';
 import type {
@@ -786,7 +787,7 @@ export class LocalDockerProvider implements SandboxProvider {
       `docker exec ${shellQuote(CONTAINER_NAME)} bash -c ` +
       `${shellQuote(buildDockerEnvWriteCommand(stale, '/run/s6/container_environment'))}`;
 
-    execSync(cmd, { timeout: 15_000, stdio: 'pipe', env });
+    execSync(cmd, { timeout: 15_000, stdio: 'pipe', env, shell: DOCKER_EXEC_SHELL });
     console.log(`[LOCAL-DOCKER] Core env vars synced via fallback (docker exec): ${Object.keys(stale).join(', ')}`);
   }
 

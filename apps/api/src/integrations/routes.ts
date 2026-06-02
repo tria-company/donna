@@ -128,8 +128,10 @@ export function createIntegrationsRouter(): Hono<AppEnv> {
       const result = await provider.listApps(query, limit, cursor);
       return c.json(result);
     } catch (err) {
-      console.error('[INTEGRATIONS] Error listing apps:', err);
-      return c.json({ error: 'Failed to list apps' }, 500);
+      // Provider unavailable (migrating off Pipedream to Composio; no PIPEDREAM_*
+      // creds). Degrade gracefully → empty list instead of spamming 500s in the UI.
+      console.warn('[INTEGRATIONS] listApps unavailable, returning empty:', err instanceof Error ? err.message : err);
+      return c.json({ apps: [], pageInfo: { totalCount: 0, count: 0, hasMore: false } });
     }
   });
 

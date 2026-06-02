@@ -101,7 +101,7 @@ const getFileType = (name: string, isDirectory: boolean): string => {
     'gitignore': 'Git Ignore File',
     'dockerfile': 'Dockerfile',
     'lock': 'Lock File',
-    'kanvax': 'Kortix Canvas',
+    'kanvax': 'Donna Canvas',
   };
   
   return typeMap[ext] || `${ext.toUpperCase()} File`;

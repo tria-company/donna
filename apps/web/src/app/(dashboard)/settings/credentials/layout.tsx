@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Secrets Manager | Kortix',
+  title: 'Secrets Manager | Donna',
   description: 'Manage environment variables and API keys',
 };
 

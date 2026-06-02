@@ -71,7 +71,11 @@ export class DaytonaProvider implements SandboxProvider {
           FIRECRAWL_API_URL: `${routerBase}/firecrawl`,
           ...opts.envVars,
         },
-        autoStopInterval: 15,
+        // 60 min idle before auto-stop (was 15). 15 min was too aggressive:
+        // backgrounding the tab for a normal work break let the sandbox stop,
+        // so returning triggered a cold wake the user saw as a reconnect cycle
+        // (SSE heartbeat timeout + health-check fail). 60 covers typical breaks.
+        autoStopInterval: 60,
         autoArchiveInterval: 30,
         public: false,
       },

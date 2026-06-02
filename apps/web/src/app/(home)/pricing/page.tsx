@@ -30,7 +30,7 @@ export default function PricingPage() {
             One machine, one subscription. Priced by the specs you need.
           </p>
           <Button size="lg" className="px-10" onClick={() => openNewInstanceModal()}>
-            Get Your Kortix <ArrowRight className="ml-2 size-4" />
+            Get Your Donna <ArrowRight className="ml-2 size-4" />
           </Button>
         </motion.div>
 

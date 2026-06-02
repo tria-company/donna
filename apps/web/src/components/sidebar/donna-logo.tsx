@@ -9,28 +9,27 @@ interface DonnaLogoProps {
 }
 
 export function DonnaLogo({ size = 24, variant = 'symbol', className }: DonnaLogoProps) {
-  // For logomark variant, use logomark-white.svg which is already white
-  // and invert it for light mode using CSS (no JS needed)
+  // Logomark: the "Donna" wordmark (white on transparent — for dark UI).
   if (variant === 'logomark') {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src="/logomark-white.svg"
-        alt="Kortix"
-        className={cn('invert dark:invert-0 flex-shrink-0', className)}
-        style={{ height: `${size}px`, width: 'auto' }}
+        src="/images/Tipografia.png"
+        alt="Donna"
+        className={cn('w-auto flex-shrink-0', className)}
+        style={{ height: `${size}px` }}
         suppressHydrationWarning
       />
     );
   }
 
-  // Default symbol variant behavior - invert for dark mode
+  // Symbol: the Donna avatar (circular, transparent corners) — collapsed / avatar spots.
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img
-      src="/kortix-symbol.svg"
-      alt="Kortix"
-      className={cn('dark:invert flex-shrink-0', className)}
+      src="/images/logo-nova.png"
+      alt="Donna"
+      className={cn('flex-shrink-0 rounded-full object-cover', className)}
       style={{ width: `${size}px`, height: `${size}px` }}
       suppressHydrationWarning
     />

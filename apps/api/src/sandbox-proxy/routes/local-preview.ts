@@ -16,6 +16,7 @@
 import { config } from '../../config';
 import { execSync } from 'child_process';
 import { buildCanonicalSandboxAuthCommand } from '../../platform/services/sandbox-auth';
+import { DOCKER_EXEC_SHELL } from '../../shared/exec-shell';
 import { invalidateProviderCache } from '..';
 
 const KORTIX_MASTER_PORT = 8000;
@@ -146,7 +147,7 @@ function trySyncServiceKey(serviceKey: string): boolean {
     console.log(`[LOCAL-PREVIEW] Syncing sandbox auth bundle to container (attempt ${_syncAttemptsForCurrentKey}/${MAX_SYNC_ATTEMPTS_PER_KEY})...`);
     execSync(
       `docker exec ${shellQuote(config.SANDBOX_CONTAINER_NAME)} bash -c ${shellQuote(buildCanonicalSandboxAuthCommand(serviceKey, config.KORTIX_URL.replace(/\/v1\/router\/?$/, '') || `http://host.docker.internal:${config.PORT}`))}`,
-      { timeout: 15_000, stdio: 'pipe', env },
+      { timeout: 15_000, stdio: 'pipe', env, shell: DOCKER_EXEC_SHELL },
     );
     _lastSyncedKey = serviceKey;
     console.log('[LOCAL-PREVIEW] Sandbox auth bundle synced');
@@ -172,7 +173,7 @@ function readContainerBootstrapKey(): string | null {
     }
     const out = execSync(
       `docker exec ${shellQuote(config.SANDBOX_CONTAINER_NAME)} cat /workspace/.secrets/.bootstrap-env.json`,
-      { timeout: 5_000, stdio: ['pipe', 'pipe', 'pipe'], env },
+      { timeout: 5_000, stdio: ['pipe', 'pipe', 'pipe'], env, shell: DOCKER_EXEC_SHELL },
     ).toString('utf8');
     const json = JSON.parse(out);
     return typeof json.KORTIX_TOKEN === 'string' && json.KORTIX_TOKEN.length > 0 ? json.KORTIX_TOKEN : null;

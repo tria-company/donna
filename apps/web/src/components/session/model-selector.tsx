@@ -260,7 +260,9 @@ export function ModelSelector({ models, selectedModel, onSelect }: ModelSelector
                           )}>
                             {model.modelName}
                           </div>
-                          <p className="truncate text-[11px] text-muted-foreground/55 leading-snug mt-1">{model.modelID}</p>
+                          {/* Show only the short variant (e.g. "fast"/"opus"), not the
+                              internal provider-prefixed id like "kortix-yolo/fast". */}
+                          <p className="truncate text-[11px] text-muted-foreground/55 leading-snug mt-1">{model.modelID.split('/').pop()}</p>
                         </div>
                         {isFree && <Tag variant="free">Free</Tag>}
                         {isSelected && <Check className="text-foreground shrink-0" />}

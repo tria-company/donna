@@ -37,6 +37,27 @@ const INDEX_SKIP_DIR_NAMES = new Set([
   'coverage',
   'dist',
   'node_modules',
+  // Sandbox-internal/system dirs (created by core/startup.sh under /workspace) —
+  // never user content; indexing them hits special files (e.g. .persistent-system/
+  // xdg/runc) that the file API can't read → 500 spam.
+  '.persistent-system',
+  '.cache',
+  '.config',
+  '.local',
+  '.kortix',
+  '.kortix-state',
+  '.ocx',
+  '.lss',
+  '.secrets',
+  '.browser-profile',
+  '.agent-browser',
+  '.npm-global',
+  '.npm',
+  '.bun',
+  '.dbus',
+  '.pki',
+  '.ssh',
+  '.XDG',
 ]);
 
 const workspaceIndexCaches = new Map<string, WorkspaceIndexCache>();

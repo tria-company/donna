@@ -112,6 +112,12 @@ async function getLocalSandboxSnapshot(): Promise<{
 }
 
 export async function ensureGenericLocalSandboxRecord(_db: Database): Promise<LocalSandboxRecord | null> {
+  // Only surface the local Docker runtime when local_docker is an enabled
+  // provider. On daytona-only / cloud deployments we must NOT auto-discover and
+  // advertise a synthetic "Local Sandbox" in the workspace picker, even if a
+  // kortix-sandbox container happens to be running on the host.
+  if (!config.isLocalDockerEnabled()) return null;
+
   const snapshot = await getLocalSandboxSnapshot();
   if (!snapshot) return null;
 

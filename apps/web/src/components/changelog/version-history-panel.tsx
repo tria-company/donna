@@ -272,7 +272,7 @@ export function VersionHistoryPanel({
                       <> {' '}&middot; Latest: <span className="font-mono font-medium text-primary">{latestVersion.startsWith('dev-') ? latestVersion : `v${latestVersion}`}</span></>
                     )}
                   </>
-                ) : 'Version history for Kortix Computer'
+                ) : 'Version history for Donna Computer'
               )}
             </p>
             {updateAvailable && !isUpdating && onUpdateLatest && (

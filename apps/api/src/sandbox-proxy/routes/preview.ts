@@ -106,7 +106,7 @@ async function resolveServiceKey(sandboxId: string): Promise<string | null> {
 
 // === Preview link resolution (no state checking -- let proxy detect if sandbox is down) ===
 
-async function resolvePreviewLink(
+export async function resolvePreviewLink(
   sandboxId: string,
   port: number
 ): Promise<{ url: string; token: string | null }> {
