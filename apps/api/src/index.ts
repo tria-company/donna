@@ -60,7 +60,38 @@ import { oauthApp } from './oauth';
 
 const app = new Hono();
 
-// === Global Middleware === 
+// ── Aceita chamadas da API com OU sem o prefixo `/v1` ──────────────────────
+// Os clientes (web/mobile) montam URLs como `${BACKEND_URL}/servers`, esperando
+// que BACKEND_URL termine em `/v1`. Quando BACKEND_URL é configurado sem o
+// `/v1` (erro comum de deploy), reescrevemos internamente o caminho para
+// `/v1/...` — sem redirect visível (requisições CORS com preflight não podem
+// seguir 3xx). `/` e `/health` ficam na raiz; upgrades WebSocket passam direto.
+app.use('*', async (c, next) => {
+  const url = new URL(c.req.url);
+  const p = url.pathname;
+  if (
+    p === '/' || p === '/health' || p === '/v1' || p.startsWith('/v1/') ||
+    c.req.header('upgrade')?.toLowerCase() === 'websocket'
+  ) {
+    return next();
+  }
+  url.pathname = '/v1' + p;
+  const init: RequestInit & { duplex?: 'half' } = {
+    method: c.req.method,
+    headers: c.req.raw.headers,
+  };
+  if (c.req.method !== 'GET' && c.req.method !== 'HEAD') {
+    init.body = c.req.raw.body;
+    init.duplex = 'half';
+  }
+  try {
+    return await app.fetch(new Request(url.toString(), init));
+  } catch {
+    return next();
+  }
+});
+
+// === Global Middleware ===
 
 // CORS origins: production domains + localhost for local dev + any extras from env.
 const cloudOrigins = [
