@@ -50,7 +50,7 @@ cd deploy/backend-vps && docker compose up -d
 
 ## Ligação com o frontend
 - Aqui (VPS): `CORS_ALLOWED_ORIGINS` deve conter a URL do front na Vercel.
-- Na Vercel: `NEXT_PUBLIC_BACKEND_URL=https://api.SEU-IP.sslip.io`.
+- Na Vercel: `NEXT_PUBLIC_BACKEND_URL=https://api.SEU-IP.sslip.io/v1`  ⚠️ **com `/v1` no final** (o backend serve tudo sob `/v1`).
 Detalhes e o lado Vercel: `docs/deploy-split-vercel-hosthatch.md`.
 
 > ⚠️ Não rode dois backends ao mesmo tempo na mesma Supabase (o scheduler/cron duplicaria).

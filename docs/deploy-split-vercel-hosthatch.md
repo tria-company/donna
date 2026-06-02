@@ -26,14 +26,14 @@ Kit pronto em [`deploy/backend-vps/`](../deploy/backend-vps/README.md). Em resum
 2. **Root Directory = `apps/web`** ← passo-chave (Vercel monorepo). O `pnpm-workspace.yaml` na raiz
    é detectado e o `@kortix/shared` resolve sozinho. Framework: **Next.js** (auto).
 3. **Environment Variables** (Project Settings → Environment Variables):
-   - `NEXT_PUBLIC_BACKEND_URL = https://api.SEU-IP.sslip.io`  ← aponta pro backend na VPS
+   - `NEXT_PUBLIC_BACKEND_URL = https://api.SEU-IP.sslip.io/v1`  ← backend na VPS (⚠️ com `/v1` no final)
    - (demais chaves públicas que o front use — Supabase anon, etc.)
 4. Deploy. O `apps/web/vercel.json` já cuida do build (`next build`) e dos branches.
 
 ## 3) A ligação (o que conecta os dois)
 | Onde | Variável | Valor |
 |------|----------|-------|
-| Vercel (front) | `NEXT_PUBLIC_BACKEND_URL` | `https://api.SEU-IP.sslip.io` |
+| Vercel (front) | `NEXT_PUBLIC_BACKEND_URL` | `https://api.SEU-IP.sslip.io/v1` (com `/v1`) |
 | VPS (back) | `CORS_ALLOWED_ORIGINS` | `https://SEU-FRONT.vercel.app` (+ domínio custom) |
 
 - Front lê o backend em [`env-config.ts`](../apps/web/src/lib/env-config.ts) → `BACKEND_URL`.
