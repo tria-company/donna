@@ -16,7 +16,7 @@ não depende do `apps/api`. Os dois se falam por **HTTP** + **CORS**.
 
 ## 1) Backend → VPS HostHatch
 Kit pronto em [`deploy/backend-vps/`](../deploy/backend-vps/README.md). Em resumo:
-1. VPS Ubuntu + Docker; DNS `api.SEU-DOMINIO.com` → IP da VPS.
+1. VPS Ubuntu + Docker. **sslip.io: sem DNS** — `api.<IP-DA-VPS>.sslip.io` resolve sozinho.
 2. `docker build --build-arg SERVICE=apps/api -f apps/api/Dockerfile -t kortix-api:latest .` (na raiz do repo).
 3. `cp deploy/backend-vps/.env.example deploy/backend-vps/.env` e preencher (Supabase, Daytona, OpenRouter, **CORS_ALLOWED_ORIGINS**).
 4. Ajustar `Caddyfile` (domínio + e-mail) e `docker compose up -d`.
@@ -26,22 +26,22 @@ Kit pronto em [`deploy/backend-vps/`](../deploy/backend-vps/README.md). Em resum
 2. **Root Directory = `apps/web`** ← passo-chave (Vercel monorepo). O `pnpm-workspace.yaml` na raiz
    é detectado e o `@kortix/shared` resolve sozinho. Framework: **Next.js** (auto).
 3. **Environment Variables** (Project Settings → Environment Variables):
-   - `NEXT_PUBLIC_BACKEND_URL = https://api.SEU-DOMINIO.com`  ← aponta pro backend na VPS
+   - `NEXT_PUBLIC_BACKEND_URL = https://api.SEU-IP.sslip.io`  ← aponta pro backend na VPS
    - (demais chaves públicas que o front use — Supabase anon, etc.)
 4. Deploy. O `apps/web/vercel.json` já cuida do build (`next build`) e dos branches.
 
 ## 3) A ligação (o que conecta os dois)
 | Onde | Variável | Valor |
 |------|----------|-------|
-| Vercel (front) | `NEXT_PUBLIC_BACKEND_URL` | `https://api.SEU-DOMINIO.com` |
+| Vercel (front) | `NEXT_PUBLIC_BACKEND_URL` | `https://api.SEU-IP.sslip.io` |
 | VPS (back) | `CORS_ALLOWED_ORIGINS` | `https://SEU-FRONT.vercel.app` (+ domínio custom) |
 
 - Front lê o backend em [`env-config.ts`](../apps/web/src/lib/env-config.ts) → `BACKEND_URL`.
 - Back libera origens extras em [`index.ts`](../apps/api/src/index.ts) → `CORS_ALLOWED_ORIGINS`.
 
 ## Checklist de verificação
-- [ ] `curl https://api.SEU-DOMINIO.com/health` responde 200 da VPS.
-- [ ] No navegador, abrir o app na Vercel → Network mostra chamadas pra `api.SEU-DOMINIO.com` (não localhost).
+- [ ] `curl https://api.SEU-IP.sslip.io/health` responde 200 da VPS.
+- [ ] No navegador, abrir o app na Vercel → Network mostra chamadas pra `api.SEU-IP.sslip.io` (não localhost).
 - [ ] Sem erro de **CORS** no console (se houver, falta o domínio Vercel em `CORS_ALLOWED_ORIGINS`).
 - [ ] Login (Supabase) funciona ponta-a-ponta.
 

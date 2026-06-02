@@ -1,10 +1,13 @@
-# Caddy — TLS automático (Let's Encrypt) + reverse proxy pro backend.
-# Troque o domínio e o e-mail. DNS: aponte api.SEU-DOMINIO.com (A/AAAA) pro IP da VPS.
+# Caddy — HTTPS automático (Let's Encrypt) + reverse proxy pro backend.
+#
+# Usando sslip.io: NÃO precisa configurar DNS. O domínio `api.<IP-DA-VPS>.sslip.io`
+# resolve sozinho pro IP da VPS. Troque SEU-IP (com pontos) e o e-mail.
+#   Ex.: IP 203.0.113.45  ->  api.203.0.113.45.sslip.io
 
 {
-	email voce@seu-dominio.com
+	email voce@tria-company.com.br
 }
 
-api.SEU-DOMINIO.com {
+api.134.195.89.114.sslip.io {
 	reverse_proxy api:8008
 }
