@@ -15,6 +15,7 @@
 
 import { authenticatedFetch } from '@/lib/auth-token';
 import { backendApi } from '@/lib/api-client';
+import { isDesktop } from '@/lib/desktop';
 import { getEnv } from '@/lib/env-config';
 import type { ServerEntry } from '@/stores/server-store';
 
@@ -794,7 +795,14 @@ export async function discoverLocalSandbox(): Promise<SandboxInfo | null> {
   if (typeof window === 'undefined') return null;
 
   const currentPlatformUrl = getPlatformUrl();
-  const candidateBases = Array.from(new Set([currentPlatformUrl, ...LOCAL_PLATFORM_CANDIDATES]));
+  // Só sonda localhost quando o app roda local (dev) ou no desktop (Tauri).
+  // Num deploy web (ex.: *.vercel.app), localhost:8008 não existe → as candidatas
+  // localhost geram erros de CORS/ERR_FAILED no console sem nenhum efeito útil.
+  const probeLocalhost =
+    isDesktop() || /^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/i.test(window.location.hostname);
+  const candidateBases = Array.from(
+    new Set([currentPlatformUrl, ...(probeLocalhost ? LOCAL_PLATFORM_CANDIDATES : [])]),
+  );
 
   for (const baseUrl of candidateBases) {
     try {
