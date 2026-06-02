@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Loader2, Upload, Trash2, FileText, Check, AlertCircle, Folder, ChevronRight, ChevronDown, Users, FolderInput } from 'lucide-react';
+import { Loader2, Upload, Trash2, FileText, Check, AlertCircle, Folder, FolderPlus, ChevronRight, ChevronDown, Users, FolderInput, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -37,6 +37,7 @@ export function KnowledgeExplorer() {
   const [openDoc, setOpenDoc] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [moveTo, setMoveTo] = useState('');
+  const [newFolder, setNewFolder] = useState<string | null>(null);
 
   const here = path.join('/');
   const { data, isLoading } = useKnowledgeBrowse(here);
@@ -47,6 +48,16 @@ export function KnowledgeExplorer() {
   const selectableAgents = useMemo(() => (agents as any[]).filter((a) => a && !a.hidden && a.name), [agents]);
 
   const refresh = () => qc.invalidateQueries({ queryKey: ['knowledge', 'browse'] });
+
+  // Pastas são derivadas do caminho dos docs (não há "pasta vazia"). "Nova pasta"
+  // navega pra dentro da pasta nova; ela passa a existir de fato ao subir um arquivo.
+  function createFolder() {
+    const name = (newFolder ?? '').replace(/[\\/]/g, '').trim();
+    setNewFolder(null);
+    if (!name) return;
+    setPath([...path, name]);
+    setOpenDoc(null);
+  }
 
   async function uploadFiles(list: FileList | File[]) {
     const arr = Array.from(list);
@@ -117,6 +128,22 @@ export function KnowledgeExplorer() {
             </button>
           </span>
         ))}
+        <div className="ml-auto">
+          {newFolder === null ? (
+            <Button size="sm" variant="outline" className="h-7 gap-1 text-xs" onClick={() => setNewFolder('')}>
+              <FolderPlus className="h-3.5 w-3.5" /> Nova pasta
+            </Button>
+          ) : (
+            <span className="flex items-center gap-1">
+              <input autoFocus value={newFolder} onChange={(e) => setNewFolder(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') createFolder(); if (e.key === 'Escape') setNewFolder(null); }}
+                placeholder="nome da pasta" maxLength={64}
+                className="h-7 w-44 rounded-md border bg-background px-2 text-xs outline-none focus:ring-1 focus:ring-primary/40" />
+              <Button size="sm" variant="outline" className="h-7 text-xs" onClick={createFolder}>Criar</Button>
+              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setNewFolder(null)}><X className="h-3.5 w-3.5" /></Button>
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Upload into current folder */}
