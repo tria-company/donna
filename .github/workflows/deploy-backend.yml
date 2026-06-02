@@ -1,0 +1,54 @@
+# Auto-deploy do BACKEND (apps/api) na VPS HostHatch.
+# A cada push no `main` que mexa no backend, conecta via SSH na VPS,
+# atualiza o código (git), rebuilda a imagem Docker e reinicia o container.
+#
+# ── Pré-requisitos: Secrets do repositório ──────────────────────────────────
+# (GitHub → repo tria-company/donna → Settings → Secrets and variables → Actions)
+#   VPS_HOST     IP/host da VPS        ex.: 134.195.89.114
+#   VPS_USER     usuário SSH           ex.: root
+#   VPS_SSH_KEY  chave PRIVADA SSH     (conteúdo inteiro do arquivo da chave de deploy)
+#   VPS_PORT     porta SSH (opcional)  default 22
+#
+# Sem os secrets, este workflow falha — configure-os antes (ver guia no chat).
+name: Deploy Backend (VPS)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/api/**'
+      - 'packages/shared/**'
+      - 'packages/db/**'
+      - 'packages/agent-tunnel/**'
+      - 'supabase/migrations/**'
+      - 'pnpm-lock.yaml'
+      - 'deploy/backend-vps/**'
+  workflow_dispatch: {}   # permite disparar manualmente em Actions → Run workflow
+
+concurrency:
+  group: deploy-backend-vps
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: SSH build & restart
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build & restart on VPS over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          command_timeout: 30m
+          script: |
+            set -e
+            cd ~/donna
+            git fetch origin main
+            git reset --hard origin/main
+            docker build --build-arg SERVICE=apps/api -f apps/api/Dockerfile -t kortix-api:latest .
+            cd deploy/backend-vps
+            docker compose up -d
+            docker image prune -f
+            docker compose ps
