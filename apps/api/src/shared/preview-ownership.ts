@@ -88,6 +88,27 @@ async function computeEntry(
 ): Promise<CacheEntry> {
   const expiresAt = Date.now() + CACHE_TTL_MS;
 
+  // Container local compartilhado: não há dono por conta, mas ainda assinamos a
+  // identidade (userId) pro sandbox poder filtrar as sessões POR USUÁRIO
+  // (session_owners em kortix-master). Admin de plataforma entra como
+  // platform_admin (enxerga sessões legacy sem dono); os demais como member
+  // (só veem as próprias sessões carimbadas). scopes ['*'] preserva o acesso às
+  // demais features — o que muda é só a visibilidade de sessões.
+  if (isSharedLocalBridge(previewSandboxId)) {
+    const primaryAccountId = await resolveAccountId(userId);
+    const ctx = await loadUserTeamContext(db, userId, primaryAccountId);
+    return {
+      allowed: true,
+      payload: {
+        userId,
+        sandboxId: previewSandboxId,
+        sandboxRole: ctx.isPlatformAdmin ? 'platform_admin' : 'member',
+        scopes: ['*'],
+      },
+      expiresAt,
+    };
+  }
+
   const ref = await resolveSandboxRef(previewSandboxId);
   const primaryAccountId = await resolveAccountId(userId);
   const ctx = await loadUserTeamContext(db, userId, primaryAccountId);

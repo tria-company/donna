@@ -216,7 +216,7 @@ if (enabledCount === 1 && config.isDaytonaEnabled()) {
   sandboxProxyApp.route('/', preview);
 } else if (enabledCount === 1 && config.isLocalDockerEnabled()) {
   // Local-only: all requests go to local Docker proxy
-  const localOnlyProxy = new Hono();
+  const localOnlyProxy = new Hono<{ Variables: { userId: string; userEmail: string } }>();
 
   localOnlyProxy.all('/:sandboxId/:port/*', async (c) => {
     const sandboxId = c.req.param('sandboxId');
@@ -231,7 +231,13 @@ if (enabledCount === 1 && config.isDaytonaEnabled()) {
       return c.json({ error: 'Sandbox not found' }, 404);
     }
 
-    return proxyToSandbox(sandboxId, port, request.method, request.remainingPath, request.queryString, request.headers, request.body, false, request.origin, undefined, resolved.serviceKey);
+    // Assina a identidade do usuário (X-Kortix-User-Context) pro kortix-master
+    // filtrar as sessões por usuário. Sem isto, o container devolve a lista
+    // inteira (todos veem tudo).
+    const userId = (c.get('userId') as string) || '';
+    const extra = await buildSignedUserContextHeader(sandboxId, userId, resolved.serviceKey);
+
+    return proxyToSandbox(sandboxId, port, request.method, request.remainingPath, request.queryString, request.headers, request.body, false, request.origin, undefined, resolved.serviceKey, extra);
   });
 
   localOnlyProxy.all('/:sandboxId/:port', async (c) => {
