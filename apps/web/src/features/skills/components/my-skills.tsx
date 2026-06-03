@@ -202,7 +202,7 @@ export function MySkills() {
               </p>
               {!search && (
                 <p className="mt-1 text-xs text-muted-foreground text-center max-w-xs">
-                  Crie uma skill com o botão "Nova skill" ou instale do Marketplace.
+                  Crie uma skill com o botão "Nova skill".
                 </p>
               )}
             </div>

@@ -78,8 +78,11 @@ const MarketplacePage = lazy(() =>
 	})),
 );
 
-// /skills — abas "Minhas Skills" (CRUD + favoritos + upload) + "Marketplace"
+// /skills — "Minhas Skills" (CRUD + favoritos + upload)
 const SkillsPage = lazy(() => import('@/app/(dashboard)/skills/page'));
+
+// /agents — editor de agentes (nome, modo, modelo, prompt)
+const AgentsEditorPage = lazy(() => import('@/app/(dashboard)/agents/page'));
 
 const DeploymentsPage = lazy(() =>
 	import('@/components/deployments/deployments-page').then((m) => ({
@@ -142,7 +145,7 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
 	'/skills': SkillsPage, // Minhas Skills + Marketplace (abas)
 	'/tools': WorkspacePage,
 	'/commands': WorkspacePage,
-	'/agents': WorkspacePage,
+	'/agents': AgentsEditorPage, // editor com edição de prompt
 	// Extra pages not in original ROUTE_MAP but exist as routes
 	'/scheduled-tasks': TriggersPage,
 	'/channels': ChannelsPage,

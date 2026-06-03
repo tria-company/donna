@@ -33,6 +33,7 @@ import {
   MessageSquare,
   Cable,
   BookOpen,
+  Bot,
   type LucideIcon,
 } from 'lucide-react';
 import posthog from 'posthog-js';
@@ -1479,6 +1480,8 @@ export function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) 
 
             {/* Donna single-menu nav (mirrors the AIFirst layout) */}
             <SidebarNavGroup icon={Server} label="Serviços" items={[
+              { label: 'Meus Agentes', icon: Bot, href: '/agents' },
+              { label: 'Minhas Skills', icon: Sparkles, href: '/skills' },
               { label: 'Triggers', icon: Calendar, href: '/scheduled-tasks' },
               { label: 'Channels', icon: MessageSquare, href: '/channels' },
               { label: 'Tunnel', icon: Cable, href: '/tunnel' },
