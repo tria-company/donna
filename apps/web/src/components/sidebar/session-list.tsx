@@ -520,14 +520,24 @@ export function SessionList({ projectId }: SessionListProps = {}) {
   const [folderToDelete, setFolderToDelete] = useState<SessionFolder | null>(null);
   const [renameFolderId, setRenameFolderId] = useState<string | null>(null);
   const [folderNameValue, setFolderNameValue] = useState('');
+  const [createFolderOpen, setCreateFolderOpen] = useState(false);
   const handleMoveSession = useCallback(
     (sessionId: string, folderId: string | null) => moveSessionMut.mutate({ sessionId, folderId }),
     [moveSessionMut],
   );
   const handleCreateFolder = useCallback(() => {
-    const name = window.prompt('Nome da nova pasta:')?.trim();
-    if (name) createFolderMut.mutate(name);
-  }, [createFolderMut]);
+    setFolderNameValue('');
+    setCreateFolderOpen(true);
+  }, []);
+  const confirmCreateFolder = useCallback(() => {
+    const name = folderNameValue.trim();
+    if (!name) return;
+    createFolderMut.mutate(name, {
+      onSuccess: () => toast.success('Pasta criada'),
+      onError: (e) => toast.error(e instanceof Error ? e.message : 'Falha ao criar a pasta'),
+    });
+    setCreateFolderOpen(false);
+  }, [folderNameValue, createFolderMut]);
 
   // Auto-refetch sessions when connection recovers from error state
   const connectionStatus = useSandboxConnectionStore((s) => s.status);
@@ -1201,6 +1211,27 @@ export function SessionList({ projectId }: SessionListProps = {}) {
             >
               Save
             </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Nova pasta */}
+      <Dialog open={createFolderOpen} onOpenChange={(open) => { if (!open) setCreateFolderOpen(false); }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Nova pasta</DialogTitle>
+            <DialogDescription>Dê um nome para a nova pasta.</DialogDescription>
+          </DialogHeader>
+          <Input type="text"
+            value={folderNameValue}
+            onChange={(e) => setFolderNameValue(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') confirmCreateFolder(); }}
+            autoFocus
+            placeholder="Nome da pasta..."
+          />
+          <DialogFooter>
+            <Button variant="ghost" size="sm" onClick={() => setCreateFolderOpen(false)} className="cursor-pointer">Cancelar</Button>
+            <Button size="sm" onClick={confirmCreateFolder} className="cursor-pointer">Criar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
