@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { useSandboxConnectionStore } from '@/stores/sandbox-connection-store';
 import { listSkills } from '../api/skills-api';
 import type { Skill } from '../types';
 
@@ -24,9 +25,14 @@ export const skillsKeys = {
  * stays unified.
  */
 export function useSkills() {
+  // Só busca depois que o runtime do opencode está conectado/saudável — senão a
+  // chamada dispara cedo, falha e cacheia vazio (era por isso que o "/" no chat
+  // não mostrava skills enquanto a dashboard, gateada, mostrava).
+  const runtimeReady = useSandboxConnectionStore((s) => s.status === 'connected' && s.healthy === true);
   return useQuery<Skill[]>({
     queryKey: skillsKeys.all,
     queryFn: listSkills,
+    enabled: runtimeReady,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
