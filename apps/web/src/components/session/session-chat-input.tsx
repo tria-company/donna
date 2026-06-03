@@ -1434,6 +1434,7 @@ export function SessionChatInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [slashFilter, setSlashFilter] = useState<string | null>(null);
+  const [slashTriggerPos, setSlashTriggerPos] = useState<number | null>(null);
   const [slashIndex, setSlashIndex] = useState(0);
   const [stagedCommand, setStagedCommand] = useState<Command | null>(null);
   const [attachedFiles, setAttachedFiles] = useState<AttachedFile[]>([]);
@@ -1676,8 +1677,11 @@ export function SessionChatInput({
   // Slash list = comandos (executáveis) + skills (referência). Índice único.
   const filteredSlashItems = useMemo(() => {
     if (slashFilter === null) return [];
-    return filterSlashItems(commands, skills, slashFilter);
-  }, [commands, skills, slashFilter]);
+    // Comandos só quando "/" está no início (eles substituem a mensagem inteira);
+    // skills aparecem em qualquer posição.
+    const cmds = slashTriggerPos === 0 ? commands : [];
+    return filterSlashItems(cmds, skills, slashFilter);
+  }, [commands, skills, slashFilter, slashTriggerPos]);
 
   // Debounced file search for @ mentions
   // Uses a persistent cache (fileResultsCache) so that narrowing a query never
@@ -1903,6 +1907,7 @@ export function SessionChatInput({
     setStagedCommand(cmd);
     setText('');
     setSlashFilter(null);
+    setSlashTriggerPos(null);
     setSlashIndex(0);
     // Focus textarea for args input
     requestAnimationFrame(() => textareaRef.current?.focus());
@@ -1912,20 +1917,27 @@ export function SessionChatInput({
   // "/query" with a "/skill " reference, track it as a mention, and let the user
   // keep typing. handleSend serializes it as <skill_ref/> so the agent loads it.
   const handleSelectSkill = (skill: Skill) => {
+    // Substitui só o "/query" (na posição detectada) por "/skill " — funciona em
+    // qualquer lugar da mensagem, não só no início.
+    const triggerPos = slashTriggerPos ?? 0;
+    const before = text.slice(0, triggerPos);
+    const after = text.slice(triggerPos + 1 + (slashFilter?.length ?? 0));
     const inserted = `/${skill.name} `;
-    setText(inserted);
+    const newText = before + inserted + after;
+    setText(newText);
     setMentions((prev) =>
       prev.some((m) => m.kind === 'skill' && m.label === skill.name)
         ? prev
         : [...prev, { kind: 'skill', label: skill.name }],
     );
     setSlashFilter(null);
+    setSlashTriggerPos(null);
     setSlashIndex(0);
     requestAnimationFrame(() => {
       const ta = textareaRef.current;
       if (ta) {
         ta.focus();
-        const pos = inserted.length;
+        const pos = before.length + inserted.length;
         ta.selectionStart = pos;
         ta.selectionEnd = pos;
         ta.style.height = 'auto';
@@ -2036,6 +2048,7 @@ export function SessionChatInput({
       if (e.key === 'Escape') {
         e.preventDefault();
         setSlashFilter(null);
+        setSlashTriggerPos(null);
         return;
       }
     }
@@ -2059,14 +2072,28 @@ export function SessionChatInput({
     const val = e.target.value;
     setText(val);
 
-    // Slash command detection (disabled while a command is staged)
+    // Slash detection (disabled while a command is staged). Dispara quando "/" está
+    // no início OU precedido de espaço (igual ao @) — não só no começo da mensagem,
+    // e ignora "/" de URLs/caminhos (precedidos por não-espaço).
     if (!stagedCommand) {
-      const match = val.match(/^\/(\S*)$/);
-      if (match) {
-        setSlashFilter(match[1]);
+      const cur = e.target.selectionStart ?? val.length;
+      let slashPos = -1;
+      for (let i = cur - 1; i >= 0; i--) {
+        const ch = val[i];
+        if (ch === '/') {
+          const prev = i > 0 ? val[i - 1] : '';
+          if (i === 0 || /\s/.test(prev)) slashPos = i;
+          break;
+        }
+        if (/\s/.test(ch)) break; // espaço antes de achar "/" → não é token de slash
+      }
+      if (slashPos !== -1) {
+        setSlashFilter(val.slice(slashPos + 1, cur));
+        setSlashTriggerPos(slashPos);
         setSlashIndex(0);
       } else {
         setSlashFilter(null);
+        setSlashTriggerPos(null);
       }
     }
 
