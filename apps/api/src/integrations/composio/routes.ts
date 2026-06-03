@@ -16,7 +16,7 @@ import { HTTPException } from 'hono/http-exception';
 import { supabaseAuth } from '../../middleware/auth';
 import { resolveAccountId } from '../../shared/resolve-account';
 import * as composio from './client';
-import { applyMcpToSandbox, getAccountSandboxExternalId } from './mcp-inject';
+import { applyMcpToSandbox, getAccountSandboxExternalId, composioMcpEntry } from './mcp-inject';
 import { upsertAccountMcp } from './mcp-store';
 
 export function createComposioRouter(): Hono {
@@ -125,7 +125,7 @@ export function createComposioRouter(): Hono {
       return c.json({ success: true, mcp_url: mcpUrl, injected: false, persisted: true, message: 'Salvo; aplica no próximo sandbox' });
     }
     const result = await applyMcpToSandbox(externalId, {
-      add: [{ name: mcpName, url: mcpUrl, enabled: true }],
+      add: [composioMcpEntry(accountId, mcpName, mcpUrl)],
     });
     return c.json({ success: result.ok, mcp_url: mcpUrl, injected: result.ok, persisted: true, reloaded: result.reloaded });
   });

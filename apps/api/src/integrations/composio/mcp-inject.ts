@@ -13,6 +13,23 @@ import { db } from '../../shared/db';
 import { sandboxes } from '@kortix/db';
 import { and, eq } from 'drizzle-orm';
 import { execInSandbox } from '../../platform/services/sandbox-exec';
+import { config } from '../../config';
+
+/**
+ * Monta a entrada de MCP do opencode para um servidor Composio.
+ * A URL crua do Composio (`.../v3/mcp/<id>`) NÃO funciona: o endpoint real exige
+ * o sufixo `/mcp`, o query `?user_id=<conta>` e o header `x-api-key`. Sem isso o
+ * opencode recebe 307/401 e não carrega nenhuma tool.
+ */
+export function composioMcpEntry(accountId: string, name: string, bareUrl: string): McpServerEntry {
+  const base = bareUrl.replace(/\/+$/, '').replace(/\/mcp$/, '');
+  return {
+    name,
+    url: `${base}/mcp?user_id=${encodeURIComponent(accountId)}`,
+    enabled: true,
+    headers: { 'x-api-key': config.COMPOSIO_API_KEY || '' },
+  };
+}
 
 export interface McpServerEntry {
   name: string;
@@ -135,7 +152,7 @@ export async function reapplyAccountMcp(accountId: string, externalId: string | 
     const saved = await listAccountMcp(accountId).catch(() => []);
     if (!saved.length) return;
     await applyMcpToSandbox(externalId, {
-      add: saved.map((s) => ({ name: s.name, url: s.url, enabled: true })),
+      add: saved.map((s) => composioMcpEntry(accountId, s.name, s.url)),
     });
     console.log(`[COMPOSIO] reapplied ${saved.length} mcp server(s) for account=${accountId}`);
   } catch (err) {
