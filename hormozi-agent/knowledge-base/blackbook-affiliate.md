@@ -1,0 +1,513 @@
+# Affiliate Blackbook — Alex Hormozi
+
+> Source: $100M Money Models Affiliate Marketing Materials
+
+---
+
+## Campaign Overview & Key Details
+
+$100M Money Models Free Virtual Book Launch Event Date:
+Saturday, August 16th, 9AM PT/12 PM ET
+Location: Virtual.
+
+People register here to get a free magic link.
+This magic link will be emailed to users upon sign-up.
+It grants them access to the virtual event on:
+
+Saturday, August 16th, 2025.
+
+### Table of Contents
+
+1. Campaign Overview & Key Details
+2. Meta Ad Copy Arsenal
+3. Email Marketing Countdown Sequence
+4. SMS & Text Message Scripts
+5. Social Media Content Templates
+6. Community & Team Outreach
+7. YouTube Video Script Outlines
+8. Affiliate Prize Structure & Incentives
+9. Event Details & Logistics
+10. Copy Hooks & Messaging Frameworks
+11. Promotion Timeline & Strategy
+12. Alex Hormozi Writing Guidelines
+
+---
+
+## Meta Ad Copy Arsenal
+### Ad 1: Secret Project Hook
+Headline: What's better than an NFT but less than a Bitcoin?
+Body: Alex Hormozi spent 4 years building a secret project. He's giving it away FREE to
+everyone who shows up live to his $100M Money Models book launch.
+August 16th, 9am PT / 12pm ET. Free to attend.
+Plus: Get the book that shows you how to get more customers to spend more money,
+faster, over and over again.
+CTA: Register free now
+
+### Ad 2: Money Models Explained
+Headline: Most businesses lose money on ads. Here's why.
+Body: They spend more getting customers than they make. The fix? Money Models.
+A Money Model gets more customers to spend more money, faster, again and again. It's
+how Alex Hormozi built his companies.
+Join his live book launch August 16th 9am PT / 12pm ET to learn the 4 types of Money
+Models that work in any business.
+CTA: Save your spot (free)
+
+### Ad 3: Social Proof
+Headline: Over 1 million people registered for this event
+Body: The biggest entrepreneur event of the year is happening August 16th 9am PT / 12pm
+ET.
+Alex Hormozi is releasing $100M Money Models LIVE. Plus giving away his secret project
+(worth more than an NFT, less than a Bitcoin) to everyone who attends.
+Don't miss out. Free to join.
+CTA: Register now
+
+### Ad 4: Problem/Solution
+Headline: Your business needs a Money Model
+Body: Without one, you're leaving money on the table every day.
+A Money Model is a series of offers that get customers to buy more, faster, repeatedly. It's
+the difference between struggling and scaling.
+Learn all 4 types live from Alex Hormozi. August 16th 9am PT / 12pm ET, free event.
+CTA: Get your spot
+
+### Ad 5: Urgency
+Headline: This only happens once
+Body: Alex Hormozi's $100M Money Models book launch is August 16th 9am PT/12pm ET. Live
+event. Free to attend.
+He's giving away his secret 4-year project to everyone who shows up. But only to people
+who show up live.
+Miss it, and you miss it forever.
+CTA: Register free
+
+### Ad 6: Direct Benefit
+Headline: How to get customers to spend more money
+Body: The answer is Money Models. 4 types of offers that work together to maximize what
+each customer is worth to your business.
+Alex Hormozi is teaching all of them live on August 16th 9am PT/12PM ET Free event.
+CTA: Save your spot
+
+---
+
+## Email Marketing Countdown Sequence
+
+### Email 1: 21 Days Out
+Subject: The biggest entrepreneur event of the year
+Preview: August 16th at 9am PT / 12pm ET - don't miss this
+Body:
+Hey [Name],
+Something big is happening August 16th at 9am PT / 12pm ET.
+Alex Hormozi is launching his new book $100M Money Models. But this isn't just any book
+launch.
+He's spent 4 years working on a secret project. He's giving it away FREE to everyone who
+shows up live. (It's better than an NFT but less than a Bitcoin.)
+Plus, he's teaching the Money Models that built his companies. These are the tactics that
+get customers to spend more money, faster, over and over again.
+Over 1 million people have already registered. This will be the biggest entrepreneur event
+of the year.
+Here's the cool part: When you register through my link, we're both working toward some
+amazing prizes:
+● 70 Profit Tactics Audiobook (when we get 10 people to register)
+
+● Chance to win a day at Alex's Vegas HQ (when we hit 10+ referrals)
+● If we make top 50, I get to go to their HQ for the day and ask whatever questions
+you want me to.
+● If we make top 10, we’ll get to do a 30min fireside chat with Alex (which I’ll stream
+live to everyone) where we can ask whatever questions I want on all our behalf
+(and everyone gets the recording)
+Event Details:
+● Date: August 16th, 2025
+● Time: 9am PT / 12pm ET / 1pm MT / 2pm CT / 3pm ET
+● Where: Live on YouTube
+● Cost: FREE
+[Register through my link here]
+We both win when you use my link. Plus you get Alex's secret project and the Money
+Models training.
+[Your name]
+
+### Email 2: 14 Days Out
+Subject: 2 weeks until the secret is revealed
+Preview: Alex's 4-year project + we're climbing the leaderboard
+Body:
+[Name],
+Two weeks from today, Alex Hormozi reveals his secret project.
+He's been working on it for 4 years. And he's giving it away FREE to everyone who shows up
+live to his $100M Money Models book launch.
+Quick update: We're making progress toward the affiliate prizes! Every person who
+registers through my link gets us closer to some incredible bonuses.
+Here's what we both get as we hit milestones:
+
+● At 10 referrals: 70 Profit Tactics Audiobook + chance to win Vegas HQ day
+● Top 50 affiliates: Guaranteed Vegas HQ day with Alex + recording
+● Top 10 affiliates: 1-on-1 podcast recording asking whatever questions you want (that
+I’ll live stream + we get the recording of it).
+What you get just for showing up August 16th at 9am PT / 12pm ET:
+● Alex's secret project (better than an NFT, less than a Bitcoin)
+● The Money Models that get customers to spend more money faster
+● 5 mystery headliners
+● All the tactics that built his companies
+[Register through my link here]
+Thanks for helping us both win!
+[Your name]
+
+### Email 3: 7 Days Out
+Subject: One week left + prize update
+Preview: The countdown is on
+Body:
+[Name],
+One week until Alex Hormozi's $100M Money Models book launch.
+August 16th at 9am PT / 12pm ET - mark your calendar now.
+Here's what happens when you show up:
+● Alex teaches the 4 Money Models that built his companies
+● You get his secret 4-year project (free, but only if you're live)
+● 5 mystery headliners join
+● You learn how to get customers to spend more money, faster
+Affiliate prize update: We're so close to hitting our first milestone! When we get 10 people
+registered through my link, we both get:
+
+● 70 Profit Tactics Audiobook (exclusive content)
+● Entry into the Vegas HQ day drawing
+Plus if we make the top 50, I get a guaranteed day with Alex in Vegas to ask your
+questions (and you get the full recording).
+And if we make top 10, we’ll get to do a 30min fireside chat with Alex (which I’ll stream live
+to everyone) where we can ask whatever questions I want on all our behalf (and
+everyone gets the recording)
+This is the biggest entrepreneur event of the year. Over 1 million people registered.
+[Register through my link here]
+Let's win this together!
+[Your name]
+
+### Email 4: 4 Days Out
+Subject: 4 days until the big reveal
+Preview: Saturday 9am PT / 12pm ET - you ready?
+Body:
+[Name],
+4 days until Alex Hormozi's $100M Money Models launch.
+Saturday, August 16th at 9am PT / 12pm ET - set your alarm now.
+Quick reminder of what happens:
+● The secret project reveal (4 years in the making)
+● Money Models that get customers to spend more
+● 5 mystery headliners share their secrets
+● All free, but only if you show up live
+We're almost there! Just need a few more registrations through my link to unlock the
+bonus prizes for all of us. When we hit 10, everyone who registered gets:
+
+● 70 Profit Tactics Audiobook
+● Chance to win a Vegas HQ day
+Plus if we make the top 50, I get a guaranteed day with Alex in Vegas to ask your
+questions (and you get the full recording).
+And if we make top 10, we’ll get to do a 30min fireside chat with Alex (which I’ll stream live
+to everyone) where we can ask whatever questions I want on all our behalf (and
+everyone gets the recording)
+[Register through my link here]
+4 days to go!
+[Your name]
+
+### Email 5: 24 Hours Out
+Subject: Tomorrow at 9am PT / 12pm ET
+Preview: Set your alarm - the big day is here
+Body:
+[Name],
+Tomorrow is the day.
+Alex Hormozi's $100M Money Models book launch. Saturday, August 16th at 9am PT /
+12pm ET.
+Set your alarm now. Here's what happens:
+● Alex reveals his secret 4-year project (free to everyone live)
+● You learn the Money Models that get customers to spend more money
+● 5 mystery headliners share their secrets
+● You get the tactics that built multi-million dollar companies
+Final call: If you haven't registered yet, use my link below. We're working toward some
+amazing affiliate prizes and every registration helps us both win.
+When we hit our milestones, everyone who used my link gets the bonus content too.
+
+[Register through my link here]
+24 hours to go. Don't miss it.
+[Your name]
+
+### Email 6: Live/Reminder
+Subject: LIVE NOW - 9am PT / 12pm ET
+Preview: Alex is going live right now
+Body:
+[Name],
+We're live RIGHT NOW.
+Alex Hormozi's $100M Money Models book launch is happening at 9am PT / 12pm ET.
+[Join the live event here]
+Don't miss the secret project reveal. It only goes to people watching live.
+[Your name]
+
+---
+
+## SMS & Text Message Scripts
+
+### SMS Reminder
+Text: Hey [Name]! Alex Hormozi's $100M Money Models launch is LIVE now. Get his secret
+project (free but only for people watching live): [put your unique live link]
+
+---
+
+## Friend Text Scripts
+
+### Version 1: Direct
+Hey real quick, Alex Hormozi is doing a huge book launch August 16th. He's giving away
+something he's worked on for 4 years (free but only to people who show up live).
+
+Plus if we get 10+ people to register, he’s giving away some free prizes we can all use. I’m
+going.
+
+If you wanna come with (it’s virtual) Here’s my link (so we can get the bonuses): [your link]
+
+### Version 2: Benefit-Focused
+Quick question - do you want to come with me to Alex Hormozi’s next book launch August
+16th 9am PT / 12pm ET.
+
+He’s giving away a secret project + apparently some crazy bonuses.
+
+This is my referral link so we can get even more bonuses (if you wanna come with): [your
+link]
+
+---
+
+## Social Media Group Posts
+
+### Version 1: Value-First
+Post: The biggest entrepreneur event of the year is happening August 16th.
+Alex Hormozi is teaching the Money Models that get customers to spend more money,
+faster, repeatedly. These are the tactics that built his companies.
+
+Plus he's giving away a secret project (4 years in the making) to everyone who shows up
+live.
+Tickets are free. Link in comments.
+
+### Version 2: Social Proof
+Post: Over a city of people have registered for Alex Hormozi's $100M Money Models book
+launch.
+It's August 16th, 9am PT / 12pm ET. It’s 100% free.
+He's teaching how to get customers to spend more money + giving away his secret
+project to everyone who shows up live.
+Tickets are free. Link in bio.
+
+---
+
+## Slack Channel Messages
+
+### Version 1: Team Benefit
+Message:
+Hey team!
+
+👋
+
+Found something that could help our revenue goals. Alex Hormozi is doing a live event
+August 16th teaching "Money Models" - basically how to get customers to spend more
+money with us.
+It's free and he's giving away some secret project to everyone who shows up live. Figured
+our sales/marketing folks might want to check it out.
+Anyone interested? [your link]
+
+### Version 2: Casual Invite
+Message:
+Quick heads up - Alex Hormozi (the $100M Offers guy) is doing a huge book launch August
+16th at 9am PT / 12pm ET.
+
+He's teaching how to get customers to spend more money + giving away something he's
+worked on for 4 years (but only to people who watch live).
+Free event, thought some of you might be interested: [your link]
+(If we pool our sign ups we unlock more free stuff)
+Comment below if you’re in.
+
+---
+
+## Organic Social Media Posts
+
+### Version 1: Personal Story Hook
+Post: Been following Alex Hormozi for a while and his stuff actually works.
+His new book launch is August 16th at 9am PT / 12pm ET and I'm definitely tuning in.
+He's teaching "Money Models" - basically how to get customers to spend more money with
+your business. Plus giving away some secret project he's worked on for 4 years (but only to
+people who show up live).
+It's free. Figure some of you might want to check it out too.
+Link in my bio or DM me
+
+📈
+
+### Version 2: Value-Forward
+Post: FREE training this Saturday that could change how you think about making money
+
+💰
+
+Alex Hormozi (the guy behind $100M Offers) is doing a live book launch August 16th at 9am
+PT / 12pm ET.
+He's breaking down the "Money Models" that built his companies - aka how to get
+customers to spend more money, faster, repeatedly.
+Plus he's giving away a secret project (4 years in the making) to everyone who shows up
+live.
+I'm registered. Anyone else joining? Link in comments
+
+👇
+
+---
+
+## YouTube Video Script Outlines
+
+### Visual Elements for Both Videos:
+● Screen share of Alex's social media posts (greenscreen style)
+● Your own business results/screenshots if applicable
+● Calendar reminder setup
+● Link to register prominently displayed throughout the video and in the video
+description
+
+### Video 1: "Why Most Businesses Fail at Making Money (And How to Fix It)"
+Length: 8-12 minutes
+Hook: "95% of businesses are leaving money on the table every single day. Here's why."
+Talking Points:
+● Opening Problem (0-30 seconds): Most business owners focus on getting
+customers but ignore how much those customers spend
+● Personal Story (:30 seconds-2:00 minutes): Share your own experience of
+struggling with customer value or a business that improved when they focused on
+this
+● The Money Model Concept (2:00-4:00 minutes):
+○ Explain what a Money Model is in simple terms
+○ Give 1-2 basic examples (restaurant upselling dessert, gym membership
+tiers)
+○ Why most businesses only use 1 of the 4 types
+● The Big Reveal (4:00-6:00 minutes):
+○ Alex Hormozi has spent years perfecting these 4 Money Models
+○ His companies use all 4 together (that's the secret)
+○ He's teaching all of them live August 16th
+● The Secret Project Tease (6:00-8:00 minutes):
+○ Mention he's giving away something worth more than an NFT, less than a
+Bitcoin
+○ Only available to people who show up live
+○ This took him 4 years to create
+● Call to Action (8:00-10:00 minutes):
+
+○ Event details: August 16th, 9am PT / 12pm ET
+○ Why they should register through your link (affiliate benefits)
+○ What they'll learn that can change their business
+● Closing (10:00-12:00 minutes): Reinforce the urgency - this only happens once
+
+### Video 2: "I'm Going to Alex Hormozi's Biggest Event Ever (You Should Come)"
+Length: 6-10 minutes
+Hook: "Over 1 million people registered for this event. Here's why I'm going and why you
+should too."
+Talking Points:
+● Opening Authority (0-30 seconds): Share your credibility - why people should
+listen to your business advice
+● Event Announcement (30 seconds-1:00 minute):
+○ Alex Hormozi's biggest book launch ever
+○ August 16th, 9am PT / 12pm ET
+○ Completely free
+● Why I'm Excited (1:00-3:00 minutes):
+○ Share what you've learned from Alex's previous content
+○ Specific results you've gotten from his teachings
+○ Why this book launch is different (4 years in the making)
+● What We'll Learn Together (3:00-5:00 minutes):
+○ The 4 Money Models that get customers to spend more
+○ Real tactics from someone who built multiple companies
+○ 5 mystery speakers (some billionaires)
+● The Secret Bonus (5:00-7:00 minutes):
+○ Alex worked on something for 4 years
+○ He's giving it away free but ONLY to people live
+○ Worth more than an NFT, less than a Bitcoin
+○ You literally can't get it any other way
+● Affiliate Benefits (7:00-9:00 minutes):
+○ Explain you're an affiliate and what that means for viewers
+○ When they use your link, you both get bonus content
+○ 70 Profit Tactics audiobook when you hit 10 referrals
+○ Chance for Vegas HQ visit
+● Call to Action (9:00-10:00 minutes):
+
+○ Register through your link in description / in the lower 3rd
+○ Set calendar reminder for August 16th
+○ Ask them to comment if they're going so you can build community
+
+---
+
+## Alex Hormozi Writing Guidelines
+
+### Keep Everything Below 3rd Grade Reading Level
+● We utilize leverage to gain higher returns on our equity checks
+
+❌
+
+● We borrow money so we can buy bigger stuff (and make more) than we could
+with our cash alone.
+
+✅
+
+### Present Voice
+● When you’re creating your sales page
+● When you create your sales page
+
+✅
+
+❌
+
+### Active Not Passive
+
+❌
+● We carried the body out of the room ✅
+● The body was carried out of the room
+
+### Avoid Adverbs Whenever Possible (adverbs usually mean lame verbs)
+● We shut the door really hard
+● We slammed the door
+
+✅
+
+❌
+
+● Avoid words like “very, super, way, actually, etc”
+### Simple/Short Sentences
+● Usually one comma
+● If two commas - cut the middle or make 2 sentences
+● We tried to escape but the man, with the red mask, chased us until we lost our
+breath.
+
+❌
+
+● The red-masked man chased us until we lost our breath. We were trapped.
+### Positive Language
+
+❌
+● Keep Going ✅
+● Don’t leave the facility ❌
+● Stay inside ✅
+● Don’t Stop
+
+✅
+
+### Remove Redundant Words
+● We simultaneously left the building at the same time
+● We left the building at the same time
+
+✅
+
+❌
+
+### Remove Unnecessary Words
+● If they don’t change the meaning or add to the meaning of the sentence.
+
+❌
+● 8 Writing Guidelines I Live By ✅
+● He was able to get out of his car. ❌
+● He exited his car. ✅
+8 Guidelines For Writing I Live By
+
+---
+
+## Checklists: Pick Your Pricing & Maximize Value
+
+III.
+
+Charge What It’s Worth: New Price________________________________________
+❏ Be more expensive than everyone else (by enough that it causes consumer to pause)
+❏ High Price = Higher Value (wine example)
+❏ Higher prices get people better results (and are therefore ethical)
+
+IV.
+
+Maximize Value Using Value Equation
+❏ Maximize Dream Outcome (solve problem worth solving)
+❏ Maximize Perceived Likelihood of Success (testimonials & proven case studies)
+❏ Minimize Time to Success (How can we make this faster? How can we show progress?)
+❏ Minimize Effort & Sacrifice (How can we make this easier? More Seamless? Convenient?)
+
+
