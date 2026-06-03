@@ -26,6 +26,7 @@ import { createComposioRouter } from './integrations/composio/routes';
 import { createKnowledgeRouter } from './knowledge/routes';
 import { createKnowledgeMcpRouter } from './knowledge/mcp';
 import { createWorkspaceSeedRouter } from './platform/routes/workspace-seed';
+import { createSkillFavoritesRouter } from './platform/routes/skill-favorites';
 import { onTerminalMessage, onTerminalClose } from './terminal/pty-bridge';
 import { validateSecretKey } from './repositories/api-keys';
 import { isKortixToken } from './shared/crypto';
@@ -372,6 +373,7 @@ app.route('/v1/composio', createComposioRouter()); // Composio (MCP-based integr
 app.route('/v1/knowledge/mcp', createKnowledgeMcpRouter()); // sandbox-authed MCP (search tool) — MUST precede /v1/knowledge (supabaseAuth)
 app.route('/v1/knowledge', createKnowledgeRouter()); // RAG knowledge base (pgvector + OpenAI embeddings)
 app.route('/v1/workspace-seed', createWorkspaceSeedRouter()); // durable per-account opencode project (agents/skills/commands)
+app.route('/v1/skill-favorites', createSkillFavoritesRouter()); // skills favoritadas por conta
 
 // Minimal /v1/sandboxes compat: the Donna Computer terminal connects via the
 // in-browser PTY bridge (ws /v1/sandboxes/:id/terminal/ws, handled at the Bun

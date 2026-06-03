@@ -712,8 +712,8 @@ export default function DashboardLayoutContent({
 					} catch {
 						/* non-fatal */
 					}
-					const existing = await readEnv("ONBOARDING_SESSION_ID");
-					ob.enter({ skipBoot: !!existing, skipSetup: !!existing });
+					// Donna fork: onboarding DESATIVADO — não entra em onboarding mode,
+					// não cria a sessão "Donna Onboarding", não mostra boot/setup.
 					setOnboardingChecked(true);
 				}
 			} catch {

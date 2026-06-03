@@ -59,6 +59,15 @@ export async function apiKeyAuth(c: Context, next: Next) {
     });
   }
 
+  // Donna fork: o INTERNAL_SERVICE_KEY (chave interna sandbox↔backend) é um caller
+  // de serviço confiável — usado pela chamada LLM do sandbox ao /v1/router (assinatura
+  // Claude Pro/Max), que não usa api key de conta. Aceita antes do check kortix_.
+  if (config.INTERNAL_SERVICE_KEY && token === config.INTERNAL_SERVICE_KEY) {
+    c.set('accountId', 'internal-service');
+    await next();
+    return;
+  }
+
   if (!isKortixToken(token)) {
     throw new HTTPException(401, {
       message: 'Invalid token format — expected kortix_ prefix',

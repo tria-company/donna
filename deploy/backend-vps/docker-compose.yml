@@ -12,8 +12,17 @@ services:
     env_file: .env
     expose:
       - "8008"          # interno; quem expõe pra internet é o Caddy
-    # Sem ports: publicados — o Caddy faz o TLS e repassa. Daytona é remoto,
-    # então NÃO precisa montar o socket do Docker aqui.
+    # ── local_docker: o backend cria os sandboxes como containers NESTA VPS ──
+    # Precisa falar com o Docker do host (socket) e estar no grupo docker (GID 988)
+    # pra ter permissão no socket sem rodar como root.
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    group_add:
+      - "988"           # GID do grupo docker no host (getent group docker)
+    networks:
+      kortix:
+        aliases:
+          - kortix-api  # o sandbox alcança o backend em http://kortix-api:8008
 
   caddy:
     image: caddy:2
@@ -27,7 +36,15 @@ services:
       - caddy_config:/config
     depends_on:
       - api
+    networks:
+      - kortix
 
 volumes:
   caddy_data:
   caddy_config:
+
+# Rede compartilhada backend ↔ sandbox. Nome fixo (kortix-net) → reusado em
+# SANDBOX_NETWORK no .env, pra o provider local_docker plugar o sandbox aqui.
+networks:
+  kortix:
+    name: kortix-net

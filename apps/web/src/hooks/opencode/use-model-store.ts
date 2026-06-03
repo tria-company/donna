@@ -62,7 +62,10 @@ interface ModelStore {
 // Bumped v2 -> v3 (Donna): the kortix-yolo provider was repointed to OpenRouter
 // with a new curated tool-capable model set, so old persisted selections
 // (Fast/Think, glm-turbo, minimax-m27, …) no longer exist. Reset to default.
-const STORE_KEY = 'opencode-model-store-v3';
+// Bumped v3 -> v4 (Donna): OpenRouter (kortix-yolo) removido — só assinatura Claude
+// (provider `anthropic`). Descarta seleções kortix-yolo/* persistidas → default anthropic.
+// Bumped v4 -> v5 (Donna): descarta também seleções do provider `openrouter` built-in.
+const STORE_KEY = 'opencode-model-store-v5';
 
 function loadStore(): ModelStore {
   if (typeof window === 'undefined') {

@@ -51,6 +51,7 @@ import type {
 import { useOpenCodeSessions, useOpenCodeSessionTodo } from '@/hooks/opencode/use-opencode-sessions';
 import { searchWorkspaceFiles } from '@/features/files';
 import { getFileIcon } from '@/features/files/components/file-icon';
+import type { Skill } from '@/features/skills/types';
 import type { Session } from '@/hooks/opencode/use-opencode-sessions';
 import { featureFlags } from '@/lib/feature-flags';
 
@@ -110,6 +111,12 @@ export interface FlatModel {
   providerSource?: string;
 }
 
+// Donna fork: a instância usa SÓ a assinatura Claude (provider `anthropic`).
+// Ocultamos do seletor o legado `kortix`/`kortix-yolo` e o provider built-in
+// `openrouter` do opencode (catálogo completo que surge quando há OPENROUTER_API_KEY
+// no sandbox). Assim só aparecem os modelos Claude.
+const HIDDEN_MODEL_PROVIDERS = new Set(['kortix', 'kortix-yolo', 'openrouter']);
+
 export function flattenModels(providers: ProviderListResponse | undefined): FlatModel[] {
   if (!providers) return [];
   const all = Array.isArray(providers.all) ? providers.all : [];
@@ -117,6 +124,7 @@ export function flattenModels(providers: ProviderListResponse | undefined): Flat
   const result: FlatModel[] = [];
   for (const p of all) {
     if (!connected.includes(p.id)) continue;
+    if (HIDDEN_MODEL_PROVIDERS.has(p.id)) continue;
     for (const [modelID, model] of Object.entries(p.models)) {
       const caps = (model as any).capabilities;
       const modalities = (model as any).modalities;
@@ -944,28 +952,51 @@ function AttachmentPreview({
 // Slash Command Popover — uses fixed positioning to escape overflow-hidden ancestors
 // ============================================================================
 
-function SlashCommandPopover({
-  commands,
-  filter,
-  selectedIndex,
-  onSelect,
-  anchorRef,
-}: {
-  commands: Command[];
-  filter: string;
-  selectedIndex: number;
-  onSelect: (command: Command) => void;
-  anchorRef: React.RefObject<HTMLElement | null>;
-}) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const filtered = useMemo(() => {
-    const q = filter.toLowerCase();
-    return commands.filter(
+/**
+ * Item de slash — pode ser um comando (executável) ou uma skill (referência).
+ * A lista combinada é navegável por um único índice (comandos primeiro, skills depois).
+ */
+export type SlashItem =
+  | { type: 'command'; command: Command }
+  | { type: 'skill'; skill: Skill };
+
+export function filterSlashItems(
+  commands: Command[],
+  skills: Skill[],
+  filter: string,
+): SlashItem[] {
+  const q = filter.toLowerCase();
+  const cmdItems: SlashItem[] = commands
+    .filter(
       (c) =>
         (c.name || '').toLowerCase().includes(q) ||
         (c.description || '').toLowerCase().includes(q),
-    );
-  }, [commands, filter]);
+    )
+    .map((command) => ({ type: 'command', command }));
+  const skillItems: SlashItem[] = skills
+    .filter(
+      (s) =>
+        (s.name || '').toLowerCase().includes(q) ||
+        (s.description || '').toLowerCase().includes(q),
+    )
+    .map((skill) => ({ type: 'skill', skill }));
+  return [...cmdItems, ...skillItems];
+}
+
+function SlashCommandPopover({
+  items,
+  selectedIndex,
+  onSelectCommand,
+  onSelectSkill,
+  anchorRef,
+}: {
+  items: SlashItem[];
+  selectedIndex: number;
+  onSelectCommand: (command: Command) => void;
+  onSelectSkill: (skill: Skill) => void;
+  anchorRef: React.RefObject<HTMLElement | null>;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   // Scroll selected item into view
   useEffect(() => {
@@ -977,7 +1008,7 @@ function SlashCommandPopover({
     }
   }, [selectedIndex]);
 
-  if (filtered.length === 0) return null;
+  if (items.length === 0) return null;
 
   // Read position synchronously from the anchor ref — fixed positioning
   // escapes overflow-hidden ancestors without needing a portal.
@@ -991,24 +1022,36 @@ function SlashCommandPopover({
       style={{ bottom: window.innerHeight - r.top + 4, left: r.left, width: Math.min(r.width, 480) }}
     >
       <div ref={scrollRef} className="max-h-64 overflow-y-auto py-1">
-        {filtered.map((cmd, i) => (
-          <button
-            key={cmd.name}
-            onMouseDown={(e) => {
-              e.preventDefault();
-              onSelect(cmd);
-            }}
-            className={cn(
-              'w-full flex flex-col gap-0.5 px-3 py-2 text-left transition-colors cursor-pointer border border-transparent rounded-md -mx-1',
-              i === selectedIndex ? 'bg-muted border-border/50' : 'hover:bg-muted/50',
-            )}
-          >
-            <span className="font-mono text-sm text-foreground">/{cmd.name}</span>
-            {cmd.description && (
-              <span className="text-xs text-muted-foreground/40 line-clamp-2">{cmd.description}</span>
-            )}
-          </button>
-        ))}
+        {items.map((item, i) => {
+          const name = item.type === 'command' ? item.command.name : item.skill.name;
+          const description = item.type === 'command' ? item.command.description : item.skill.description;
+          return (
+            <button
+              key={`${item.type}:${name}`}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                if (item.type === 'command') onSelectCommand(item.command);
+                else onSelectSkill(item.skill);
+              }}
+              className={cn(
+                'w-full flex flex-col gap-0.5 px-3 py-2 text-left transition-colors cursor-pointer border border-transparent rounded-md -mx-1',
+                i === selectedIndex ? 'bg-muted border-border/50' : 'hover:bg-muted/50',
+              )}
+            >
+              <span className="flex items-center gap-1.5 font-mono text-sm text-foreground">
+                /{name}
+                {item.type === 'skill' && (
+                  <span className="rounded bg-amber-500/15 px-1 text-[9px] font-sans font-medium uppercase tracking-wide text-amber-600">
+                    skill
+                  </span>
+                )}
+              </span>
+              {description && (
+                <span className="text-xs text-muted-foreground/40 line-clamp-2">{description}</span>
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -1026,8 +1069,8 @@ export interface MentionItem {
 }
 
 export interface TrackedMention {
-  kind: 'file' | 'agent' | 'session';
-  label: string;
+  kind: 'file' | 'agent' | 'session' | 'skill';
+  label: string; // skill mentions carry the skill name here
   value?: string; // session ID for session mentions; real agent name for agent mentions (label may be branded, e.g. "Donna")
 }
 
@@ -1251,6 +1294,8 @@ export interface SessionChatInputProps {
   onAgentChange?: (agentName: string | null | undefined) => void;
   commands?: Command[];
   onCommand?: (command: Command, args?: string) => void;
+  /** Skills referenciáveis com "/" no chat (não executáveis — viram referência). */
+  skills?: Skill[];
   models?: FlatModel[];
   selectedModel?: { providerID: string; modelID: string } | null;
   onModelChange?: (model: { providerID: string; modelID: string } | null) => void;
@@ -1338,6 +1383,7 @@ export function SessionChatInput({
   onAgentChange,
   commands = [],
   onCommand,
+  skills = [],
   models = [],
   selectedModel = null,
   onModelChange,
@@ -1627,15 +1673,11 @@ export function SessionChatInput({
     });
   };
 
-  const filteredCommands = useMemo(() => {
+  // Slash list = comandos (executáveis) + skills (referência). Índice único.
+  const filteredSlashItems = useMemo(() => {
     if (slashFilter === null) return [];
-    const q = slashFilter.toLowerCase();
-    return commands.filter(
-      (c) =>
-        (c.name || '').toLowerCase().includes(q) ||
-        (c.description || '').toLowerCase().includes(q),
-    );
-  }, [commands, slashFilter]);
+    return filterSlashItems(commands, skills, slashFilter);
+  }, [commands, skills, slashFilter]);
 
   // Debounced file search for @ mentions
   // Uses a persistent cache (fileResultsCache) so that narrowing a query never
@@ -1866,6 +1908,34 @@ export function SessionChatInput({
     requestAnimationFrame(() => textareaRef.current?.focus());
   };
 
+  // Skill picked from the slash popover: NOT executed. We replace the leading
+  // "/query" with a "/skill " reference, track it as a mention, and let the user
+  // keep typing. handleSend serializes it as <skill_ref/> so the agent loads it.
+  const handleSelectSkill = (skill: Skill) => {
+    const inserted = `/${skill.name} `;
+    setText(inserted);
+    setMentions((prev) =>
+      prev.some((m) => m.kind === 'skill' && m.label === skill.name)
+        ? prev
+        : [...prev, { kind: 'skill', label: skill.name }],
+    );
+    setSlashFilter(null);
+    setSlashIndex(0);
+    requestAnimationFrame(() => {
+      const ta = textareaRef.current;
+      if (ta) {
+        ta.focus();
+        const pos = inserted.length;
+        ta.selectionStart = pos;
+        ta.selectionEnd = pos;
+        ta.style.height = 'auto';
+        const newHeight = Math.min(ta.scrollHeight, 200) + 'px';
+        ta.style.height = newHeight;
+        if (highlightRef.current) highlightRef.current.style.height = newHeight;
+      }
+    });
+  };
+
   const handleSelectMention = (item: MentionItem) => {
     if (!mentionQuery) return;
     const before = text.slice(0, mentionQuery.triggerPos);
@@ -1940,20 +2010,22 @@ export function SessionChatInput({
       }
     }
 
-    if (slashFilter !== null && filteredCommands.length > 0) {
+    if (slashFilter !== null && filteredSlashItems.length > 0) {
       if (e.key === 'ArrowDown') {
         e.preventDefault();
-        setSlashIndex((i) => (i + 1) % filteredCommands.length);
+        setSlashIndex((i) => (i + 1) % filteredSlashItems.length);
         return;
       }
       if (e.key === 'ArrowUp') {
         e.preventDefault();
-        setSlashIndex((i) => (i - 1 + filteredCommands.length) % filteredCommands.length);
+        setSlashIndex((i) => (i - 1 + filteredSlashItems.length) % filteredSlashItems.length);
         return;
       }
       if (e.key === 'Enter' || e.key === 'Tab') {
         e.preventDefault();
-        handleSelectCommand(filteredCommands[slashIndex]);
+        const item = filteredSlashItems[slashIndex];
+        if (item.type === 'command') handleSelectCommand(item.command);
+        else handleSelectSkill(item.skill);
         return;
       }
       if (e.key === 'Escape') {
@@ -2043,6 +2115,8 @@ export function SessionChatInput({
     // Collect all mention ranges sorted by position
     const ranges: { start: number; end: number; kind: SegKind }[] = [];
     for (const m of mentions) {
+      // Skills are referenced with "/" (not "@") and aren't highlighted here.
+      if (m.kind === 'skill') continue;
       const needle = `@${m.label}`;
       const idx = text.indexOf(needle);
       if (idx !== -1) {
@@ -2087,12 +2161,12 @@ export function SessionChatInput({
             </div>
           )}
           {/* Slash command popover (portalled to body to escape overflow-hidden ancestors) */}
-          {slashFilter !== null && filteredCommands.length > 0 && (
+          {slashFilter !== null && filteredSlashItems.length > 0 && (
             <SlashCommandPopover
-              commands={commands}
-              filter={slashFilter}
+              items={filteredSlashItems}
               selectedIndex={slashIndex}
-              onSelect={handleSelectCommand}
+              onSelectCommand={handleSelectCommand}
+              onSelectSkill={handleSelectSkill}
               anchorRef={cardRef}
             />
           )}

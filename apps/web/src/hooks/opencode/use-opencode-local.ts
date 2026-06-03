@@ -123,10 +123,11 @@ export function formatModelString(model: ModelKey): string {
   return `${model.providerID}/${model.modelID}`;
 }
 
-// Providers hidden from the model picker. `kortix` is the legacy minimax route
-// (disabled at the sandbox anyway). `kortix-yolo` is NOT hidden here: the Donna
-// fork repurposed it to expose the curated OpenRouter model set in the picker.
-const HIDDEN_MODEL_PROVIDERS = new Set(['kortix']);
+// Providers hidden from the model picker. `kortix` is the legacy minimax route.
+// Donna fork: a instância usa SÓ a assinatura Claude (provider `anthropic`).
+// Ocultamos kortix-yolo + o provider built-in `openrouter` do opencode (catálogo
+// completo que aparece quando há OPENROUTER_API_KEY no sandbox). Só Claude no seletor.
+const HIDDEN_MODEL_PROVIDERS = new Set(['kortix', 'kortix-yolo', 'openrouter']);
 
 // ============================================================================
 // Hook

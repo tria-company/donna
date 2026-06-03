@@ -332,6 +332,22 @@ export const integrationCredentials = kortixSchema.table(
   ],
 );
 
+// ─── Skill favorites (account-scoped) ───────────────────────────────────────
+
+export const skillFavorites = kortixSchema.table(
+  'skill_favorites',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    accountId: uuid('account_id').notNull(),
+    skillName: text('skill_name').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex('idx_skill_favorites_account_name').on(table.accountId, table.skillName),
+    index('idx_skill_favorites_account').on(table.accountId),
+  ],
+);
+
 // ─── Integrations (account-level OAuth connections) ─────────────────────────
 
 export const integrations = kortixSchema.table(

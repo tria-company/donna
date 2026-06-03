@@ -414,6 +414,42 @@ adminApp.post('/api/env', async (c) => {
   return c.json({ ok: true });
 });
 
+// ─── Claude Pro/Max (OAuth) — instance-wide subscription credential ───────────
+// One-time admin capture of a shared Claude subscription (no API key). The
+// backend router uses it for ALL Claude traffic; sandboxes never see the token.
+
+/** GET /v1/admin/api/anthropic-oauth/status — is a subscription connected? */
+adminApp.get('/api/anthropic-oauth/status', async (c) => {
+  const { getAnthropicOAuthStatus } = await import('../anthropic-oauth/broker');
+  return c.json(await getAnthropicOAuthStatus());
+});
+
+/** POST /v1/admin/api/anthropic-oauth/start — begin the browser OAuth flow. */
+adminApp.post('/api/anthropic-oauth/start', async (c) => {
+  const { startAnthropicOAuth } = await import('../anthropic-oauth/broker');
+  const { url } = startAnthropicOAuth();
+  return c.json({ url });
+});
+
+/** POST /v1/admin/api/anthropic-oauth/complete { code } — finish + persist. */
+adminApp.post('/api/anthropic-oauth/complete', async (c) => {
+  const body = await c.req.json().catch(() => ({}));
+  const code = typeof body?.code === 'string' ? body.code : '';
+  if (!code) return c.json({ ok: false, error: 'Cole a URL de redirect (ou o código).' }, 400);
+  const { completeAnthropicOAuth } = await import('../anthropic-oauth/broker');
+  const result = await completeAnthropicOAuth(code);
+  // Always 200 — the body's `ok`/`error` carries the outcome (cleaner for the
+  // frontend admin page than HTTP-error parsing).
+  return c.json(result);
+});
+
+/** POST /v1/admin/api/anthropic-oauth/disconnect — wipe the credential. */
+adminApp.post('/api/anthropic-oauth/disconnect', async (c) => {
+  const { disconnectAnthropicOAuth } = await import('../anthropic-oauth/broker');
+  await disconnectAnthropicOAuth();
+  return c.json({ ok: true });
+});
+
 /** GET /v1/admin/api/instances — list all sandbox instances from DB */
 adminApp.get('/api/instances', async (c) => {
   try {
@@ -1937,6 +1973,7 @@ function getAdminHTML(): string {
       <button class="tab active" onclick="switchTab('credentials')">Credentials</button>
       <button class="tab" onclick="switchTab('instances')">Machines</button>
       <button class="tab" onclick="switchTab('status')">System Status</button>
+      <button class="tab" onclick="switchTab('claude')">Claude</button>
     </div>
 
     <div id="section-credentials" class="section active">
@@ -1963,6 +2000,25 @@ function getAdminHTML(): string {
     <div id="section-status" class="section">
       <div id="status-container">
         <div class="empty-state"><span class="loading-spinner"></span> Loading status...</div>
+      </div>
+    </div>
+
+    <div id="section-claude" class="section">
+      <div class="card">
+        <div class="card-body" style="display:block;padding-top:16px;">
+          <div class="section-hint">Conecte UMA assinatura Claude Pro/Max (OAuth, sem API key). Ela passa a alimentar os agentes de toda a instância via o router do backend — o refresh token fica só no backend, os sandboxes nunca o veem. ⚠️ Todos os usuários dividem o limite semanal da conta, e usar assinatura pessoal num produto pode violar os termos da Anthropic.</div>
+          <div id="claude-status" style="margin:14px 0;font-size:14px;">
+            <span class="loading-spinner"></span> Carregando status...
+          </div>
+          <div id="claude-connect" style="display:none;margin-top:12px;">
+            <button class="btn btn-primary" onclick="startClaudeOAuth()">Conectar Claude Pro/Max</button>
+          </div>
+          <div id="claude-step2" style="display:none;margin-top:12px;">
+            <p style="font-size:13px;color:var(--text-dim);margin-bottom:8px;">Abriu o login numa aba nova? Depois de entrar, copie a URL de redirect (começa com <code>http://localhost</code>) e cole aqui:</p>
+            <input type="text" id="claude-code" placeholder="Cole a URL de redirect (ou o código)" style="width:100%;padding:10px 12px;background:var(--bg-input);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;margin-bottom:8px;outline:none;" />
+            <button class="btn btn-primary" onclick="completeClaudeOAuth()">Concluir conexão</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -2333,6 +2389,54 @@ function getAdminHTML(): string {
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
       document.querySelector('.tab[onclick*="' + tab + '"]').classList.add('active');
       document.getElementById('section-' + tab).classList.add('active');
+      if (tab === 'claude') loadClaudeStatus();
+    }
+
+    // ─── Claude Pro/Max (OAuth) ─────────────────────────────────
+    async function loadClaudeStatus() {
+      const el = document.getElementById('claude-status');
+      try {
+        const s = await apiFetch('/anthropic-oauth/status');
+        if (s.connected) {
+          el.innerHTML = '✅ Conectado' + (s.expiresAt ? ' · token expira em ' + escapeHtml(new Date(s.expiresAt).toLocaleString()) : '') +
+            ' <button class="btn" style="margin-left:8px;" onclick="disconnectClaude()">Desconectar</button>';
+          document.getElementById('claude-connect').style.display = 'none';
+          document.getElementById('claude-step2').style.display = 'none';
+        } else {
+          el.innerHTML = '⚪ Nenhuma assinatura conectada.';
+          document.getElementById('claude-connect').style.display = 'block';
+          document.getElementById('claude-step2').style.display = 'none';
+        }
+      } catch (e) {
+        el.textContent = 'Falha ao carregar status: ' + (e.message || e);
+      }
+    }
+
+    async function startClaudeOAuth() {
+      try {
+        const r = await apiFetch('/anthropic-oauth/start', { method: 'POST' });
+        if (r.url) {
+          window.open(r.url, '_blank', 'noopener,noreferrer');
+          document.getElementById('claude-step2').style.display = 'block';
+          document.getElementById('claude-connect').style.display = 'none';
+        }
+      } catch (e) { showToast('Falha ao iniciar: ' + (e.message || e), 'error'); }
+    }
+
+    async function completeClaudeOAuth() {
+      const code = document.getElementById('claude-code').value.trim();
+      if (!code) { showToast('Cole a URL de redirect.', 'error'); return; }
+      try {
+        const r = await apiFetch('/anthropic-oauth/complete', { method: 'POST', body: JSON.stringify({ code }) });
+        if (r.ok) { showToast('Claude conectado!', 'success'); document.getElementById('claude-code').value = ''; loadClaudeStatus(); }
+        else { showToast(r.error || 'Falha ao concluir', 'error'); }
+      } catch (e) { showToast('Falha: ' + (e.message || e), 'error'); }
+    }
+
+    async function disconnectClaude() {
+      if (!confirm('Desconectar a assinatura Claude? Os agentes pararão de usar a conta.')) return;
+      try { await apiFetch('/anthropic-oauth/disconnect', { method: 'POST' }); showToast('Desconectado', 'success'); loadClaudeStatus(); }
+      catch (e) { showToast('Falha: ' + (e.message || e), 'error'); }
     }
 
     // ─── Toast ──────────────────────────────────────────────────

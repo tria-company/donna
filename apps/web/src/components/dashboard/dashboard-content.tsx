@@ -336,6 +336,18 @@ export function DashboardContent() {
                   </Card>
                 )}
 
+                {/* "Manage" card for skills — opens /skills (Minhas Skills + Marketplace) */}
+                {t.key === 'skills' && (
+                  <Card
+                    onClick={() => router.push('/skills')}
+                    className="group flex min-w-0 cursor-pointer flex-col items-center justify-center gap-2 border-dashed py-10 text-center transition-colors hover:border-primary/50"
+                  >
+                    <Plus className="h-6 w-6 text-muted-foreground group-hover:text-primary" />
+                    <span className="font-medium">Minhas Skills</span>
+                    <span className="text-xs text-muted-foreground">criar, editar, favoritar</span>
+                  </Card>
+                )}
+
                 {t.items.map((item) => (
                   <Card
                     key={item.id}

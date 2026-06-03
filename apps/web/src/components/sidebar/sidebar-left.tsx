@@ -1364,15 +1364,18 @@ export function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) 
           </button>
         </div>
 
-        {/* Workspace-style instance switcher — single click to swap, no full-page nav. */}
-        <div
-          className={cn(
-            'px-2 pt-2',
-            effectiveState === 'collapsed' && 'hidden',
-          )}
-        >
-          <InstanceSwitcherPopover />
-        </div>
+        {/* Donna: seletor de workspace OCULTADO — a instância usa só a sandbox local
+            (sem Daytona, sem troca de workspace). Reverter = descomentar o bloco abaixo. */}
+        {false && (
+          <div
+            className={cn(
+              'px-2 pt-2',
+              effectiveState === 'collapsed' && 'hidden',
+            )}
+          >
+            <InstanceSwitcherPopover />
+          </div>
+        )}
       </SidebarHeader>
 
       {/* ====== CONTENT ====== */}

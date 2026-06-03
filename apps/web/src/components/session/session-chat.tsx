@@ -143,9 +143,12 @@ import { openTabAndNavigate, useTabStore } from '@/stores/tab-store';
 import {
   buildFileRefsBlock,
   buildAgentRefsBlock,
+  buildSkillRefsBlock,
   type FileRefLike,
   type AgentRefLike,
+  type SkillRefLike,
 } from '@/lib/project-preamble';
+import { useSkills } from '@/features/skills/hooks';
 // Shared UI primitives (framework-agnostic, reusable on mobile)
 import {
   type AgentPart,
@@ -466,8 +469,9 @@ function HighlightMentions({
     const b = parseFileMentionReferences(a.cleanText);
     const c = parseAgentMentionReferences(b.cleanText);
     const d = parseSessionReferences(c.cleanText);
+    const e = parseSkillMentionReferences(d.cleanText);
     return {
-      cleanText: d.cleanText,
+      cleanText: e.cleanText,
       sessions: d.sessions,
     };
   }, [text]);
@@ -755,6 +759,26 @@ function parseAgentMentionReferences(text: string): {
     .replace(/\n*Referenced agents \([^)]*\):\n?/g, '')
     .trim();
   return { cleanText: cleaned, agents };
+}
+
+function parseSkillMentionReferences(text: string): {
+  cleanText: string;
+  skills: { name: string }[];
+} {
+  const skills: { name: string }[] = [];
+  let cleaned = text.replace(
+    /<skill_ref\b([\s\S]*?)\/>/g,
+    (_, attrs: string) => {
+      const m = attrs.match(/name="([^"]*?)"/);
+      const name = m ? unescapeAttr(m[1]) : undefined;
+      if (name) skills.push({ name });
+      return '';
+    },
+  );
+  cleaned = cleaned
+    .replace(/\n*Skills solicitadas \([^)]*\):\n?/g, '')
+    .trim();
+  return { cleanText: cleaned, skills };
 }
 
 // ============================================================================
@@ -3990,6 +4014,7 @@ export function SessionChat({
   // the globals. First render has no session yet — fall back to globals.
   const { data: agents } = useOpenCodeAgents({ directory: session?.directory });
   const { data: commands } = useOpenCodeCommands();
+  const { data: skills } = useSkills();
   const { data: providers } = useOpenCodeProviders();
   const { data: allSessions } = useOpenCodeSessions();
   const { data: config } = useOpenCodeConfig();
@@ -5316,6 +5341,11 @@ export function SessionChat({
         // Use the real agent name (value) for resolution; label may be a branded
         // display name (e.g. "Donna" for the "general" agent).
         .map((m) => ({ name: m.value || m.label }));
+      // Skills referenced with "/" in the input — serialized as <skill_ref/> so
+      // the agent loads and uses each via the Skill tool.
+      const skillMentionRefs: SkillRefLike[] = (mentions ?? [])
+        .filter((m) => m.kind === 'skill' && m.label)
+        .map((m) => ({ name: m.label }));
 
       // Play send sound
       playSound('send');
@@ -5407,6 +5437,10 @@ export function SessionChat({
       }
       if (agentMentionRefs.length > 0) {
         const block = buildAgentRefsBlock(agentMentionRefs);
+        if (block) optimisticText = `${optimisticText}\n\n${block}`;
+      }
+      if (skillMentionRefs.length > 0) {
+        const block = buildSkillRefsBlock(skillMentionRefs);
         if (block) optimisticText = `${optimisticText}\n\n${block}`;
       }
 
@@ -5531,6 +5565,10 @@ export function SessionChat({
       }
       if (agentMentionRefs.length > 0) {
         const block = buildAgentRefsBlock(agentMentionRefs);
+        if (block) textPrompt.text = `${textPrompt.text}\n\n${block}`;
+      }
+      if (skillMentionRefs.length > 0) {
+        const block = buildSkillRefsBlock(skillMentionRefs);
         if (block) textPrompt.text = `${textPrompt.text}\n\n${block}`;
       }
 
@@ -6232,6 +6270,7 @@ export function SessionChat({
           onAgentChange={(name) => local.agent.set(name ?? undefined)}
           commands={commands || []}
           onCommand={handleCommand}
+          skills={skills || []}
           models={local.model.list}
           selectedModel={local.model.currentKey ?? null}
           onModelChange={(m) =>

@@ -1,7 +1,41 @@
 import { config, KORTIX_MARKUP } from '../../config';
 import type { ModelConfig } from '../config/models';
+import {
+  ANTHROPIC_MESSAGES_URL,
+  ANTHROPIC_VERSION as ANTHROPIC_OAUTH_VERSION,
+  ANTHROPIC_AUTH_USER_AGENT,
+  anthropicBetas,
+} from '../../anthropic-oauth/constants';
+import { applyClaudeCodeRequest } from '../../anthropic-oauth/body';
 
 const ANTHROPIC_VERSION = '2023-06-01';
+
+/**
+ * Forward a request to Anthropic's native /v1/messages using the shared
+ * Claude Pro/Max subscription (OAuth bearer), emulating the Claude Code client.
+ * Used when a subscription credential is connected (see anthropic-oauth/broker).
+ * The `mcp_` tool prefix added here is stripped from the response by the caller.
+ */
+export async function proxyToAnthropicSubscription(
+  body: Record<string, unknown>,
+  isStreaming: boolean,
+  accessToken: string,
+): Promise<Response> {
+  console.log(
+    `[LLM][Anthropic] Proxying via Claude Pro/Max subscription: ${body.model} (stream=${isStreaming})`,
+  );
+  return fetch(ANTHROPIC_MESSAGES_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      'anthropic-version': ANTHROPIC_OAUTH_VERSION,
+      'anthropic-beta': anthropicBetas(),
+      'User-Agent': ANTHROPIC_AUTH_USER_AGENT,
+    },
+    body: JSON.stringify(applyClaudeCodeRequest(body)),
+  });
+}
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

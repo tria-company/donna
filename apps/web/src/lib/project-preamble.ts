@@ -45,6 +45,10 @@ export interface SessionRefLike {
   title: string;
 }
 
+export interface SkillRefLike {
+  name: string;
+}
+
 // ─── Tag builders ───────────────────────────────────────────────────────────
 
 export function buildFileRef(f: FileRefLike): string {
@@ -58,6 +62,10 @@ export function buildAgentRef(a: AgentRefLike): string {
 
 export function buildSessionRef(s: SessionRefLike): string {
   return `<session_ref id="${escapeAttr(s.id)}" title="${escapeAttr(s.title)}" />`;
+}
+
+export function buildSkillRef(s: SkillRefLike): string {
+  return `<skill_ref name="${escapeAttr(s.name)}" />`;
 }
 
 // ─── Block builders ─────────────────────────────────────────────────────────
@@ -76,6 +84,14 @@ export function buildAgentRefsBlock(
   if (!agents.length) return '';
   const refs = agents.map(buildAgentRef).join('\n');
   return `Referenced agents (the user has @-mentioned these agents — delegate or hand off as appropriate):\n${refs}`;
+}
+
+export function buildSkillRefsBlock(
+  skills: ReadonlyArray<SkillRefLike>,
+): string {
+  if (!skills.length) return '';
+  const refs = skills.map(buildSkillRef).join('\n');
+  return `Skills solicitadas (o usuário referenciou estas skills com "/" — carregue e use cada uma com a ferramenta Skill antes de responder):\n${refs}`;
 }
 
 // ─── Appenders (text-in, text-out) ──────────────────────────────────────────

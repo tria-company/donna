@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   BarChart2,
   Bell,
+  Bot,
   ChevronRight,
   Database,
   MessageCircle,
@@ -74,6 +75,11 @@ export function AdminSidebar() {
       label: 'Accounts',
       icon: Users,
       badge: accounts?.total ? formatCount(accounts.total) : undefined,
+    },
+    {
+      href: '/admin/claude',
+      label: 'Claude',
+      icon: Bot,
     },
     {
       href: '/admin/utils',

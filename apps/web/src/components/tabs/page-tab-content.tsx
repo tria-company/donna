@@ -78,6 +78,9 @@ const MarketplacePage = lazy(() =>
 	})),
 );
 
+// /skills — abas "Minhas Skills" (CRUD + favoritos + upload) + "Marketplace"
+const SkillsPage = lazy(() => import('@/app/(dashboard)/skills/page'));
+
 const DeploymentsPage = lazy(() =>
 	import('@/components/deployments/deployments-page').then((m) => ({
 		default: m.DeploymentsPage,
@@ -136,7 +139,7 @@ const PAGE_COMPONENTS: Record<string, ComponentType> = {
 	'/workspace': WorkspacePage,
 	// Marketplace - browse and install all components from registry
 	'/marketplace': MarketplacePage,
-	'/skills': MarketplacePage, // backwards compat
+	'/skills': SkillsPage, // Minhas Skills + Marketplace (abas)
 	'/tools': WorkspacePage,
 	'/commands': WorkspacePage,
 	'/agents': WorkspacePage,

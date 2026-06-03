@@ -3,9 +3,12 @@ import { HTTPException } from 'hono/http-exception';
 import type { AppContext } from '../../types';
 import {
   proxyToAnthropic,
+  proxyToAnthropicSubscription,
   extractAnthropicUsage,
   calculateAnthropicCost,
 } from '../services/anthropic';
+import { getValidAnthropicAccessToken } from '../../anthropic-oauth/broker';
+import { stripMcpPrefix, makeMcpStripTransform } from '../../anthropic-oauth/body';
 import { getModel } from '../config/models';
 import { checkCredits, deductLLMCredits } from '../services/billing';
 import {
@@ -68,6 +71,46 @@ anthropic.post('/messages', async (c) => {
   const metadata = body.metadata as Record<string, unknown> | undefined;
   const sessionId =
     typeof metadata?.session_id === 'string' ? metadata.session_id : undefined;
+
+  // ─── Subscription mode (shared Claude Pro/Max OAuth) ──────────────────────
+  // When an instance-wide subscription credential is connected, route to
+  // Anthropic natively with the shared bearer. Flat subscription → no per-token
+  // credit metering or spending cap. The `mcp_` tool prefix added by the
+  // proxy is stripped from the response so opencode sees its original names.
+  const subscriptionToken = await getValidAnthropicAccessToken();
+  if (subscriptionToken) {
+    const response = await proxyToAnthropicSubscription(body, isStreaming, subscriptionToken);
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      console.error(`[LLM][Anthropic] Subscription error ${response.status}: ${errorBody}`);
+      return new Response(stripMcpPrefix(errorBody), {
+        status: response.status,
+        headers: { 'Content-Type': response.headers.get('Content-Type') || 'application/json' },
+      });
+    }
+
+    if (isStreaming) {
+      const upstreamBody = response.body;
+      if (!upstreamBody) {
+        throw new HTTPException(502, { message: 'No response body from upstream' });
+      }
+      return new Response(upstreamBody.pipeThrough(makeMcpStripTransform()), {
+        status: response.status,
+        headers: {
+          'Content-Type': response.headers.get('Content-Type') || 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          Connection: 'keep-alive',
+        },
+      });
+    }
+
+    const text = await response.text();
+    return new Response(stripMcpPrefix(text), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 
   // Per-member cap enforcement (same pattern as /llm/chat/completions).
   const actor = resolveActorFromRequest(c, { logPrefix: '[LLM][Anthropic]' });

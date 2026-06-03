@@ -50,7 +50,10 @@ export interface ClassifyContext {
   triggerNames?: string[];
 }
 
-const ONBOARDING_TITLE_RE = /^Onboarding\s*·/i;
+// Matches the legacy "Onboarding · workspace" AND the "Donna Onboarding" /
+// "Kortix Onboarding" auto-session titles. Donna fork: onboarding está desativado
+// e essas sessões são escondidas da sidebar (ver isSidebarHidden).
+const ONBOARDING_TITLE_RE = /^(donna|kortix)?\s*onboarding(\s*·|\s*$)/i;
 // Captures the agent display name (Group 1) from titles like:
 //   "Engineer · #3 Build X"
 //   "QA · #4 Review …"
@@ -106,5 +109,6 @@ export function classifySession(
 
 /** Category predicate that returns true for sessions the sidebar should HIDE. */
 export function isSidebarHidden(cls: Classification): boolean {
-  return cls.category === 'agent_bound' || cls.category === 'trigger_fire';
+  // Donna fork: onboarding desativado → esconder também as sessões "onboarding".
+  return cls.category === 'agent_bound' || cls.category === 'trigger_fire' || cls.category === 'onboarding';
 }
