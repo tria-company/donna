@@ -1,9 +1,9 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  // Default model: OpenRouter Auto Router — picks a capable (tool-supporting)
-  // model per request. Fallback order: persisted UI selection -> agent.model
+  // Donna fork: só Claude no seletor. Default = Claude Sonnet 4.6 via OpenRouter
+  // (provider kortix-yolo). Fallback: persisted UI selection -> agent.model
   // -> this -> provider default.
-  "model": "openrouter/openrouter/auto",
+  "model": "kortix-yolo/think",
   "permission": {
     "*": "allow",
     "task": "deny"
@@ -12,7 +12,9 @@
     // servers + per-agent `kb_<agent>_search` permissions — nothing baked here.
   },
   "autoupdate": false,
-  "disabled_providers": ["opencode", "anthropic", "kortix"],
+  // Donna fork: esconde o OpenRouter built-in (catálogo enorme) e o anthropic
+  // (subscription OAuth ainda não pronto). Só o kortix-yolo (Claude via OpenRouter).
+  "disabled_providers": ["opencode", "anthropic", "kortix", "openrouter"],
   "default_agent": "general",
   // Shared system prompt base — always injected into every agent session.
   // Agent-specific persona/loop/rules live in ./agents/<name>.md.
@@ -56,14 +58,7 @@
       "models": {
         "kortix-yolo/think": { "name": "Claude Sonnet 4.6", "id": "anthropic/claude-sonnet-4.6", "family": "kortix-yolo", "tool_call": true },
         "kortix-yolo/fast": { "name": "Claude Haiku 4.5", "id": "anthropic/claude-haiku-4.5", "family": "kortix-yolo", "tool_call": true },
-        "kortix-yolo/opus": { "name": "Claude Opus 4.8", "id": "anthropic/claude-opus-4.8", "family": "kortix-yolo", "tool_call": true },
-        "kortix-yolo/gpt4o": { "name": "GPT-4o", "id": "openai/gpt-4o", "family": "kortix-yolo", "tool_call": true },
-        "kortix-yolo/gemini": { "name": "Gemini 3 Flash", "id": "google/gemini-3-flash-preview", "family": "kortix-yolo", "tool_call": true },
-        "kortix-yolo/grok": { "name": "Grok 4.20", "id": "x-ai/grok-4.20", "family": "kortix-yolo", "tool_call": true },
-        "kortix-yolo/glm": { "name": "GLM 5.1", "id": "z-ai/glm-5.1", "family": "kortix-yolo", "tool_call": true },
-        "kortix-yolo/kimi": { "name": "Kimi K2.6", "id": "moonshotai/kimi-k2.6", "family": "kortix-yolo", "tool_call": true },
-        "kortix-yolo/minimax": { "name": "MiniMax M3", "id": "minimax/minimax-m3", "family": "kortix-yolo", "tool_call": true },
-        "kortix-yolo/deepseek": { "name": "DeepSeek V4 Pro", "id": "deepseek/deepseek-v4-pro", "family": "kortix-yolo", "tool_call": true }
+        "kortix-yolo/opus": { "name": "Claude Opus 4.8", "id": "anthropic/claude-opus-4.8", "family": "kortix-yolo", "tool_call": true }
       }
     }
     // "kortix": {
