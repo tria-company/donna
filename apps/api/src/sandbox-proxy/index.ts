@@ -14,6 +14,78 @@ import {
   encodeKortixUserContext,
   KORTIX_USER_CONTEXT_HEADER,
 } from '../shared/kortix-user-context';
+import { resolveAccountId } from '../shared/resolve-account';
+import { getPlatformRole } from '../shared/platform-roles';
+import { stampSessionOwner, ownerOf, scopeSessionList } from './session-scope';
+
+// Porta do kortix-master dentro do sandbox (onde vivem as rotas /session).
+const KORTIX_MASTER_PORT = 8000;
+
+/**
+ * Escopo por usuário das sessões do opencode, feito NO PROXY (independe da
+ * versão do sandbox). Intercepta só a coleção /session na porta do kortix-master:
+ *   - GET  /session       → filtra a lista pras conversas do próprio usuário
+ *   - POST /session       → carimba o dono da nova sessão
+ *   - DELETE /session/:id → só deixa apagar a própria
+ * Qualquer outra rota (mensagens, SSE, etc.) passa direto, sem buffer.
+ */
+async function proxyWithSessionScope(
+  userId: string,
+  port: number,
+  method: string,
+  remainingPath: string,
+  doProxy: () => Promise<Response>,
+): Promise<Response> {
+  if (port !== KORTIX_MASTER_PORT) return doProxy();
+  const path = (remainingPath.split('?')[0] || '/').replace(/\/+$/, '') || '/';
+  const isCollection = path === '/session';
+  const isDelete = method === 'DELETE' && /^\/session\/[^/]+$/.test(path);
+  if (!isCollection && !isDelete) return doProxy();
+  if (!userId) return doProxy();
+
+  const accountId = await resolveAccountId(userId);
+  if (!accountId) return doProxy();
+  const role = await getPlatformRole(userId);
+  const isAdmin = role === 'admin' || role === 'super_admin';
+
+  if (method === 'GET' && isCollection) {
+    const res = await doProxy();
+    if (res.status !== 200) return res;
+    const filtered = await scopeSessionList(await res.text(), accountId, isAdmin);
+    const headers = new Headers(res.headers);
+    headers.delete('content-length');
+    return new Response(filtered, { status: 200, headers });
+  }
+
+  if (method === 'POST' && isCollection) {
+    const res = await doProxy();
+    if (res.status >= 400) return res;
+    const body = await res.text();
+    try {
+      const j = JSON.parse(body) as { id?: string };
+      if (j?.id) await stampSessionOwner(j.id, accountId);
+    } catch {
+      // resposta não-JSON — não dá pra carimbar; segue.
+    }
+    const headers = new Headers(res.headers);
+    headers.delete('content-length');
+    return new Response(body, { status: res.status, headers });
+  }
+
+  if (isDelete) {
+    const sessionId = path.split('/')[2];
+    const owner = await ownerOf(sessionId).catch(() => null);
+    if (owner && owner !== accountId && !isAdmin) {
+      return new Response(
+        JSON.stringify({ error: 'Você só pode apagar as próprias conversas' }),
+        { status: 403, headers: { 'content-type': 'application/json' } },
+      );
+    }
+    return doProxy();
+  }
+
+  return doProxy();
+}
 
 async function buildSignedUserContextHeader(
   sandboxId: string,
@@ -237,7 +309,10 @@ if (enabledCount === 1 && config.isDaytonaEnabled()) {
     const userId = (c.get('userId') as string) || '';
     const extra = await buildSignedUserContextHeader(sandboxId, userId, resolved.serviceKey);
 
-    return proxyToSandbox(sandboxId, port, request.method, request.remainingPath, request.queryString, request.headers, request.body, false, request.origin, undefined, resolved.serviceKey, extra);
+    // Escopo por usuário NO BACKEND (independe da versão do sandbox).
+    return proxyWithSessionScope(userId, port, request.method, request.remainingPath, () =>
+      proxyToSandbox(sandboxId, port, request.method, request.remainingPath, request.queryString, request.headers, request.body, false, request.origin, undefined, resolved.serviceKey, extra),
+    );
   });
 
   localOnlyProxy.all('/:sandboxId/:port', async (c) => {
@@ -313,7 +388,9 @@ if (enabledCount === 1 && config.isDaytonaEnabled()) {
 
     if (resolved?.provider === 'local_docker') {
       const extra = await buildSignedUserContextHeader(sandboxId, userId, resolved.serviceKey);
-      return proxyToSandbox(sandboxId, port, request.method, request.remainingPath, request.queryString, request.headers, request.body, false, request.origin, undefined, resolved.serviceKey, extra);
+      return proxyWithSessionScope(userId, port, request.method, request.remainingPath, () =>
+        proxyToSandbox(sandboxId, port, request.method, request.remainingPath, request.queryString, request.headers, request.body, false, request.origin, undefined, resolved.serviceKey, extra),
+      );
     }
 
     if (resolved?.provider === 'justavps') {
