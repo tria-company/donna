@@ -6,7 +6,7 @@
  * (sidebar + tabs) stays mounted so navigation feels instant.
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { Fragment } from 'react';
@@ -88,6 +88,8 @@ export function NoInstanceState() {
 
   const [creating, setCreating] = useState(false);
   const [claiming, setClaiming] = useState(false);
+  const [autoFailed, setAutoFailed] = useState(false);
+  const autoStartedRef = useRef(false);
 
   const canClaimComputer = accountState?.can_claim_computer === true;
 
@@ -97,13 +99,28 @@ export function NoInstanceState() {
       return;
     }
     setCreating(true);
+    setAutoFailed(false);
     try {
       await ensureSandbox();
       await queryClient.invalidateQueries({ queryKey: ['platform', 'sandbox'] });
+    } catch {
+      // Falhou: cai no card pra o usuário tentar de novo manualmente.
+      setAutoFailed(true);
     } finally {
       setCreating(false);
     }
   };
+
+  // Modo interno (sem billing): provisiona o sandbox automaticamente no primeiro
+  // acesso — o usuário não precisa clicar em "Create instance". Roda uma vez; se
+  // falhar, mostramos o card pra retry. No modo cloud, criar instância abre o
+  // fluxo de plano (pago), então NÃO auto-criamos.
+  useEffect(() => {
+    if (isCloud || canClaimComputer || autoStartedRef.current) return;
+    autoStartedRef.current = true;
+    void handleCreateInstance();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCloud, canClaimComputer]);
 
   const handleClaim = async () => {
     setClaiming(true);
@@ -119,6 +136,20 @@ export function NoInstanceState() {
       setClaiming(false);
     }
   };
+
+  // Auto-provisionando no 1º acesso (modo interno): em vez do card de criação,
+  // mostra só um loader discreto — o sandbox nasce nos bastidores. O card volta
+  // a aparecer se a criação falhar (autoFailed).
+  if (!isCloud && !canClaimComputer && !autoFailed) {
+    return (
+      <div className="flex-1 flex items-center justify-center px-4">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">Preparando seu computador na nuvem…</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex items-start justify-center px-4 pt-12 pb-20">
