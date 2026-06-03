@@ -1,9 +1,8 @@
 'use client';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { authenticatedFetch } from '@/lib/auth-token';
+import { backendApi } from '@/lib/api-client';
 import { useAuth } from '@/components/AuthProvider';
-import { useServerStore } from '@/stores/server-store';
 
 // ---------------------------------------------------------------------------
 // Query keys
@@ -13,26 +12,20 @@ export const skillFavoritesKeys = {
   all: ['kortix', 'skill-favorites'] as const,
 };
 
-function favoritesUrl(serverUrl: string): string {
-  return `${serverUrl.replace(/\/+$/, '')}/v1/skill-favorites`;
-}
-
 // ---------------------------------------------------------------------------
 // Read — favorited skill names as a Set
 // ---------------------------------------------------------------------------
 
 export function useSkillFavorites() {
   const { user, isLoading: isAuthLoading } = useAuth();
-  const serverUrl = useServerStore((s) => s.getActiveServerUrl());
   return useQuery<Set<string>>({
-    queryKey: [...skillFavoritesKeys.all, user?.id ?? 'anonymous', serverUrl],
+    queryKey: [...skillFavoritesKeys.all, user?.id ?? 'anonymous'],
     queryFn: async (): Promise<Set<string>> => {
-      const res = await authenticatedFetch(favoritesUrl(serverUrl));
-      if (!res.ok) throw new Error(`Falha ao carregar favoritos: ${res.status}`);
-      const data = await res.json();
-      return new Set<string>(data.favorites ?? []);
+      const r = await backendApi.get<{ favorites: string[] }>('/skill-favorites', { showErrors: false });
+      if (r.error) throw new Error(r.error.message);
+      return new Set<string>(r.data?.favorites ?? []);
     },
-    enabled: !isAuthLoading && !!user && !!serverUrl,
+    enabled: !isAuthLoading && !!user,
     staleTime: 30_000,
     placeholderData: (prev) => prev,
   });
@@ -45,20 +38,14 @@ export function useSkillFavorites() {
 export function useToggleSkillFavorite() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
-  const serverUrl = useServerStore((s) => s.getActiveServerUrl());
-  const key = [...skillFavoritesKeys.all, user?.id ?? 'anonymous', serverUrl];
+  const key = [...skillFavoritesKeys.all, user?.id ?? 'anonymous'];
 
   return useMutation<void, Error, { name: string; favorite: boolean }, { previous?: Set<string> }>({
     mutationFn: async ({ name, favorite }) => {
-      const base = favoritesUrl(serverUrl);
-      const res = favorite
-        ? await authenticatedFetch(base, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name }),
-          })
-        : await authenticatedFetch(`${base}/${encodeURIComponent(name)}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error(`Falha ao atualizar favorito: ${res.status}`);
+      const r = favorite
+        ? await backendApi.post('/skill-favorites', { name })
+        : await backendApi.delete(`/skill-favorites/${encodeURIComponent(name)}`);
+      if (r.error) throw new Error(r.error.message);
     },
     onMutate: async ({ name, favorite }) => {
       await queryClient.cancelQueries({ queryKey: key });
