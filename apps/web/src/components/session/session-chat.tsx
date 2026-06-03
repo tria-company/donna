@@ -1694,6 +1694,12 @@ function UserMessageRow({
     () => parseSessionReferences(textAfterAgentMentions),
     [textAfterAgentMentions],
   );
+  // Skills referenced with "/" — tira o bloco "Skills solicitadas (...)" +
+  // <skill_ref/> do balão (o agente já recebeu; o usuário não precisa ver).
+  const { cleanText: textAfterSkills } = useMemo(
+    () => parseSkillMentionReferences(textAfterSessions),
+    [textAfterSessions],
+  );
   // System notification XML — parsed LAST so all other XML subsystems
   // (file refs, session refs, reply context, etc.) consume their tags first.
   // Whatever XML blocks remain are system notifications.
@@ -1701,8 +1707,8 @@ function UserMessageRow({
     cleanText: text,
     notifications: systemNotifications,
   } = useMemo(
-    () => parseSystemNotifications(textAfterSessions),
-    [textAfterSessions],
+    () => parseSystemNotifications(textAfterSkills),
+    [textAfterSkills],
   );
   // Silence unused-variable warnings — these parsed refs are currently only
   // consumed as stripping side-effects.
@@ -6031,8 +6037,10 @@ export function SessionChat({
                             parseFileMentionReferences(afterProjects);
                           const { cleanText: afterAgentMentions } =
                             parseAgentMentionReferences(afterFileMentions);
-                          const { cleanText } =
+                          const { cleanText: afterSessions } =
                             parseSessionReferences(afterAgentMentions);
+                          const { cleanText } =
+                            parseSkillMentionReferences(afterSessions);
                           return (
                             <>
                               {optReply && (
