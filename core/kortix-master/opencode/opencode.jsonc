@@ -5,8 +5,9 @@
   // Fallback: persisted UI selection -> agent.model -> this -> provider default.
   "model": "anthropic/claude-sonnet-4-6",
   "permission": {
-    "*": "allow",
-    "task": "deny"
+    "*": "allow"
+    // Donna fork: `task` liberado — o agente mp (Segundo Cérebro) delega pra
+    // f1/f2 via a ferramenta task. Sem isso ele cai no fallback (ler inline).
     // Donna fork: knowledge base (RAG) access is per-document × per-agent and
     // injected at runtime by apps/api knowledge/inject.ts as `kb_<agent>` MCP
     // servers + per-agent `kb_<agent>_search` permissions — nothing baked here.
