@@ -1953,6 +1953,11 @@ export function SessionChatInput({
         ...(item.kind === 'session' || item.kind === 'agent' ? { value: item.value } : {}),
       },
     ]);
+    // "@agente" também ATIVA o agente escolhido (troca o agente ativo do turno),
+    // não só insere o nome — assim mencionar = acionar.
+    if (item.kind === 'agent' && onAgentChange) {
+      onAgentChange(item.value || item.label);
+    }
     setMentionQuery(null);
     setMentionIndex(0);
     setFileResults([]);
