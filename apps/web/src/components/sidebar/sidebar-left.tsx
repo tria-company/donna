@@ -1191,18 +1191,24 @@ export function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) 
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const supabase = createClient();
-      const { data } = await supabase.auth.getUser();
-      if (data.user) {
-        setUser({
-          name: data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'User',
-          email: data.user.email || '',
-          avatar: data.user.user_metadata?.avatar_url || data.user.user_metadata?.picture || '',
-          isAdmin,
-        });
+      try {
+        const supabase = createClient();
+        const { data } = await supabase.auth.getUser();
+        if (data.user) {
+          setUser({
+            name: data.user.user_metadata?.name || data.user.email?.split('@')[0] || 'User',
+            email: data.user.email || '',
+            avatar: data.user.user_metadata?.avatar_url || data.user.user_metadata?.picture || '',
+            isAdmin,
+          });
+        }
+      } catch {
+        // @supabase/auth-js pode lançar AbortError quando o navigator lock é
+        // "roubado" pra recuperação (StrictMode/múltiplas abas). É benigno e
+        // se auto-recupera — engolimos pra não virar "uncaught (in promise)".
       }
     };
-    fetchUserData();
+    void fetchUserData();
   }, [isAdmin]);
 
   useEffect(() => {
