@@ -25,6 +25,7 @@ import { type AttachedFile, SessionChatInput } from '@/components/session/sessio
 import { usePendingFilesStore } from '@/stores/pending-files-store';
 import { useOpenCodeLocal, formatModelString } from '@/hooks/opencode/use-opencode-local';
 import { useOpenCodeConfig } from '@/hooks/opencode/use-opencode-config';
+import { useSkillFavorites } from '@/features/skills/hooks';
 import { NoInstanceState } from '@/components/dashboard/no-instance-state';
 import { useSandbox } from '@/hooks/platform/use-sandbox';
 import { DonnaLogo } from '@/components/sidebar/donna-logo';
@@ -101,6 +102,7 @@ export function DashboardContent() {
   const { data: config } = useOpenCodeConfig();
   const { data: projects } = useOpenCodeProjects();
   const { data: skills } = useOpenCodeSkills();
+  const { data: favoriteSkills } = useSkillFavorites();
   const { data: connectors } = useDonnaConnectors();
 
   // Unified model/agent/variant state
@@ -211,7 +213,10 @@ export function DashboardContent() {
         description: String(p.description ?? p.worktree ?? ''),
       };
     });
-    const skillItems: CatalogItem[] = (skills as any[] ?? []).map((s: any) => ({
+    // Dashboard: mostra só as skills favoritadas (gerenciar todas em /skills).
+    const skillItems: CatalogItem[] = (skills as any[] ?? [])
+      .filter((s: any) => favoriteSkills?.has(s.name))
+      .map((s: any) => ({
       id: s.name,
       name: s.name,
       description: s.description || '',
@@ -228,7 +233,7 @@ export function DashboardContent() {
       { key: 'skills', label: 'Skills', route: '/skills', items: skillItems },
       { key: 'conectores', label: 'Conectores', route: '/connectors', items: connectorItems },
     ];
-  }, [agents, projects, skills, connectors]);
+  }, [agents, projects, skills, favoriteSkills, connectors]);
 
   if (showNoInstanceState) {
     return (
