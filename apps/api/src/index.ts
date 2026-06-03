@@ -28,6 +28,7 @@ import { createKnowledgeMcpRouter } from './knowledge/mcp';
 import { createWorkspaceSeedRouter } from './platform/routes/workspace-seed';
 import { createSkillFavoritesRouter } from './platform/routes/skill-favorites';
 import { createTranscriptionRouter } from './transcription/routes';
+import { createSessionFoldersRouter } from './platform/routes/session-folders';
 import { onTerminalMessage, onTerminalClose } from './terminal/pty-bridge';
 import { validateSecretKey } from './repositories/api-keys';
 import { isKortixToken } from './shared/crypto';
@@ -376,6 +377,7 @@ app.route('/v1/knowledge', createKnowledgeRouter()); // RAG knowledge base (pgve
 app.route('/v1/workspace-seed', createWorkspaceSeedRouter()); // durable per-account opencode project (agents/skills/commands)
 app.route('/v1/skill-favorites', createSkillFavoritesRouter()); // skills favoritadas por conta
 app.route('/v1/transcription', createTranscriptionRouter()); // speech-to-text (OpenAI Whisper)
+app.route('/v1/session-folders', createSessionFoldersRouter()); // pastas de sessões por conta
 
 // Minimal /v1/sandboxes compat: the Donna Computer terminal connects via the
 // in-browser PTY bridge (ws /v1/sandboxes/:id/terminal/ws, handled at the Bun

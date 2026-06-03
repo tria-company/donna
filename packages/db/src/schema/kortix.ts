@@ -12,6 +12,7 @@ import {
   index,
   uniqueIndex,
   unique,
+  primaryKey,
 } from 'drizzle-orm/pg-core';
 import { relations, sql } from 'drizzle-orm';
 
@@ -345,6 +346,35 @@ export const skillFavorites = kortixSchema.table(
   (table) => [
     uniqueIndex('idx_skill_favorites_account_name').on(table.accountId, table.skillName),
     index('idx_skill_favorites_account').on(table.accountId),
+  ],
+);
+
+// ─── Session folders (account-scoped) ───────────────────────────────────────
+
+export const sessionFolders = kortixSchema.table(
+  'session_folders',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    accountId: uuid('account_id').notNull(),
+    name: text('name').notNull(),
+    position: integer('position').notNull().default(0),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index('idx_session_folders_account').on(table.accountId)],
+);
+
+export const sessionFolderItems = kortixSchema.table(
+  'session_folder_items',
+  {
+    accountId: uuid('account_id').notNull(),
+    sessionId: text('session_id').notNull(),
+    folderId: uuid('folder_id').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.accountId, table.sessionId] }),
+    index('idx_session_folder_items_folder').on(table.folderId),
   ],
 );
 
