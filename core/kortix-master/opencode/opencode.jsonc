@@ -1,9 +1,9 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  // Donna fork: só Claude no seletor. Default = Claude Sonnet 4.6 via OpenRouter
-  // (provider kortix-yolo). Fallback: persisted UI selection -> agent.model
-  // -> this -> provider default.
-  "model": "kortix-yolo/think",
+  // Donna fork: só Claude, via a ASSINATURA Claude Pro/Max (provider `anthropic`
+  // → backend router → credencial OAuth central). Default = Sonnet 4.6.
+  // Fallback: persisted UI selection -> agent.model -> this -> provider default.
+  "model": "anthropic/claude-sonnet-4-6",
   "permission": {
     "*": "allow",
     "task": "deny"
@@ -12,9 +12,9 @@
     // servers + per-agent `kb_<agent>_search` permissions — nothing baked here.
   },
   "autoupdate": false,
-  // Donna fork: esconde o OpenRouter built-in (catálogo enorme) e o anthropic
-  // (subscription OAuth ainda não pronto). Só o kortix-yolo (Claude via OpenRouter).
-  "disabled_providers": ["opencode", "anthropic", "kortix", "openrouter"],
+  // Donna fork: só a assinatura Claude (provider `anthropic`). Desabilita o
+  // kortix-yolo (OpenRouter), o openrouter built-in e os demais.
+  "disabled_providers": ["opencode", "kortix", "openrouter", "kortix-yolo"],
   "default_agent": "general",
   // Shared system prompt base — always injected into every agent session.
   // Agent-specific persona/loop/rules live in ./agents/<name>.md.
@@ -30,17 +30,21 @@
   },
   "provider": {
     "anthropic": {
+      // Donna fork: NÃO fala direto com api.anthropic.com. Aponta pro router do
+      // backend ({KORTIX_API_URL}/v1/router), que segura a credencial OAuth da
+      // assinatura Claude Pro/Max (central) e injeta o bearer + headers do Claude
+      // Code. O sandbox autentica com KORTIX_TOKEN e nunca vê o refresh token.
       "npm": "@ai-sdk/anthropic",
-      "env": ["ANTHROPIC_API_KEY"],
+      "env": ["KORTIX_TOKEN", "KORTIX_API_URL"],
       "options": {
-        "apiKey": "{env:ANTHROPIC_API_KEY}"
+        "baseURL": "{env:KORTIX_API_URL}/v1/router",
+        "apiKey": "{env:KORTIX_TOKEN}",
+        "headers": { "Authorization": "Bearer {env:KORTIX_TOKEN}" }
       },
       "models": {
-        "claude-sonnet-4-6": {
-          "name": "Claude Sonnet 4.6",
-          "id": "claude-sonnet-4-6",
-          "family": "anthropic"
-        }
+        "claude-sonnet-4-6": { "name": "Claude Sonnet 4.6", "id": "claude-sonnet-4-6", "family": "anthropic", "tool_call": true },
+        "claude-opus-4-8": { "name": "Claude Opus 4.8", "id": "claude-opus-4-8", "family": "anthropic", "tool_call": true },
+        "claude-haiku-4-5": { "name": "Claude Haiku 4.5", "id": "claude-haiku-4-5", "family": "anthropic", "tool_call": true }
       }
     },
     "kortix-yolo": {
