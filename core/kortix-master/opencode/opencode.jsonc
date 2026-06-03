@@ -112,7 +112,11 @@
         "CONTEXT7_API_KEY": "{env:CONTEXT7_API_KEY}"
       },
       "enabled": true
-    }
+    },
+    // Donna fork: ClickUp + Gmail via Composio — disponíveis para TODOS os agentes, sempre.
+    // URLs estáveis das MCP servers do Composio desta conta (criadas via /enable).
+    "composio-clickup": { "type": "remote", "url": "https://backend.composio.dev/v3/mcp/68ba136b-9782-479e-af69-e302b121c829", "enabled": true },
+    "composio-gmail":   { "type": "remote", "url": "https://backend.composio.dev/v3/mcp/0927b157-c8ab-4d3b-8532-4802185ce5af", "enabled": true }
     // Donna fork: knowledge-base MCP servers (kb_<agent>) are injected per-account
     // at runtime by apps/api knowledge/inject.ts — see permission note above.
   }
