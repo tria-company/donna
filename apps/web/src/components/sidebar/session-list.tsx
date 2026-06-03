@@ -14,6 +14,10 @@ import {
   ChevronRight,
   ChevronDown,
   Layers,
+  Folder,
+  FolderPlus,
+  FolderInput,
+  Check,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { restartSandbox } from '@/lib/platform-client';
@@ -26,7 +30,19 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
+import {
+  useSessionFolders,
+  useCreateSessionFolder,
+  useRenameSessionFolder,
+  useDeleteSessionFolder,
+  useMoveSessionToFolder,
+  type SessionFolder,
+} from '@/hooks/donna/use-session-folders';
 import {
   Dialog,
   DialogContent,
@@ -92,6 +108,9 @@ interface SessionRowProps {
   onArchive: (sessionId: string) => void;
   onCompact: (sessionId: string) => void;
   onPrefetch?: (sessionId: string) => void;
+  folders?: SessionFolder[];
+  folderItems?: Record<string, string>;
+  onMove?: (sessionId: string, folderId: string | null) => void;
 }
 
 const SessionRow = memo(function SessionRow({
@@ -109,8 +128,12 @@ const SessionRow = memo(function SessionRow({
   onArchive,
   onCompact,
   onPrefetch,
+  folders,
+  folderItems,
+  onMove,
 }: SessionRowProps) {
   const [isHovering, setIsHovering] = useState(false);
+  const currentFolderId = folderItems?.[session.id] ?? null;
 
   const displayTitle = session.title?.includes('@worker')
     ? session.title.replace(/\s*\(@worker\)\s*$/, '')
@@ -261,6 +284,49 @@ const SessionRow = memo(function SessionRow({
                 <Archive className="h-4 w-4" />
                 Archive
               </DropdownMenuItem>
+              {onMove && (
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger className="cursor-pointer">
+                    <FolderInput className="h-4 w-4" />
+                    Mover para pasta
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent className="w-44 p-1">
+                    {(folders ?? []).length === 0 && (
+                      <div className="px-2 py-1.5 text-xs text-muted-foreground">Nenhuma pasta ainda</div>
+                    )}
+                    {(folders ?? []).map((f) => (
+                      <DropdownMenuItem
+                        key={f.id}
+                        className="cursor-pointer"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onMove(session.id, f.id);
+                        }}
+                      >
+                        <Folder className="h-4 w-4" />
+                        <span className="flex-1 truncate">{f.name}</span>
+                        {currentFolderId === f.id && <Check className="h-3.5 w-3.5" />}
+                      </DropdownMenuItem>
+                    ))}
+                    {currentFolderId && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            onMove(session.id, null);
+                          }}
+                        >
+                          Remover da pasta
+                        </DropdownMenuItem>
+                      </>
+                    )}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+              )}
               <DropdownMenuItem
                 className="cursor-pointer"
                 onClick={(e) => {
@@ -298,6 +364,9 @@ interface SessionGroupProps {
   onArchive: (sessionId: string) => void;
   onCompact: (sessionId: string) => void;
   onPrefetch?: (sessionId: string) => void;
+  folders?: SessionFolder[];
+  folderItems?: Record<string, string>;
+  onMove?: (sessionId: string, folderId: string | null) => void;
 }
 
 function SessionGroup({
@@ -314,8 +383,12 @@ function SessionGroup({
   onArchive,
   onCompact,
   onPrefetch,
+  folders,
+  folderItems,
+  onMove,
 }: SessionGroupProps) {
   const childIds = childMap.get(session.id);
+  const moveProps = { folders, folderItems, onMove };
   const hasChildren = !!childIds && childIds.length > 0;
   const isExpanded = expandedNodes[session.id] ?? false;
   const { isBusy, pendingCount } = getStatus(session.id);
@@ -352,6 +425,7 @@ function SessionGroup({
           onArchive={onArchive}
           onCompact={onCompact}
           onPrefetch={onPrefetch}
+          {...moveProps}
         />
       );
     }
@@ -370,6 +444,7 @@ function SessionGroup({
         onArchive={onArchive}
         onCompact={onCompact}
         onPrefetch={onPrefetch}
+        {...moveProps}
       />
     );
   };
@@ -393,6 +468,7 @@ function SessionGroup({
         onArchive={onArchive}
         onCompact={onCompact}
         onPrefetch={onPrefetch}
+        {...moveProps}
       />
 
       {/* Children — indented under parent with subtle left border */}
@@ -431,6 +507,27 @@ export function SessionList({ projectId }: SessionListProps = {}) {
   const { prefetchOnHover } = useBackgroundSessionPrefetch(sessions);
   const { mutate: deleteSession, isPending: isDeleting } = useDeleteOpenCodeSession();
   const { mutate: updateSession } = useUpdateOpenCodeSession();
+
+  // Pastas de sessões (account-scoped)
+  const { data: folderData } = useSessionFolders();
+  const folders = folderData?.folders ?? [];
+  const folderItems = folderData?.items ?? {};
+  const createFolderMut = useCreateSessionFolder();
+  const renameFolderMut = useRenameSessionFolder();
+  const deleteFolderMut = useDeleteSessionFolder();
+  const moveSessionMut = useMoveSessionToFolder();
+  const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
+  const [folderToDelete, setFolderToDelete] = useState<SessionFolder | null>(null);
+  const [renameFolderId, setRenameFolderId] = useState<string | null>(null);
+  const [folderNameValue, setFolderNameValue] = useState('');
+  const handleMoveSession = useCallback(
+    (sessionId: string, folderId: string | null) => moveSessionMut.mutate({ sessionId, folderId }),
+    [moveSessionMut],
+  );
+  const handleCreateFolder = useCallback(() => {
+    const name = window.prompt('Nome da nova pasta:')?.trim();
+    if (name) createFolderMut.mutate(name);
+  }, [createFolderMut]);
 
   // Auto-refetch sessions when connection recovers from error state
   const connectionStatus = useSandboxConnectionStore((s) => s.status);
@@ -769,6 +866,9 @@ export function SessionList({ projectId }: SessionListProps = {}) {
     onArchive: handleArchiveSession,
     onCompact: handleCompactSession,
     onPrefetch: prefetchOnHover,
+    folders,
+    folderItems,
+    onMove: handleMoveSession,
   };
 
   return (
@@ -835,6 +935,75 @@ export function SessionList({ projectId }: SessionListProps = {}) {
 
       {/* Session list */}
       <div className="px-2 pb-2">
+        {/* Pastas */}
+        {!error && (
+          <div className="mb-1">
+            <div className="group/ph flex items-center gap-1 px-3 py-1">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">Pastas</span>
+              <button
+                onClick={handleCreateFolder}
+                title="Nova pasta"
+                className="ml-auto p-0.5 rounded-md text-muted-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors cursor-pointer"
+              >
+                <FolderPlus className="size-3.5" />
+              </button>
+            </div>
+            {folders.map((folder) => {
+              const open = expandedFolders[folder.id] ?? true;
+              const folderSessions = rootSessions.filter((s) => folderItems[s.id] === folder.id);
+              return (
+                <div key={folder.id} className="mb-0.5">
+                  <div className="group/fr flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-sidebar-accent text-muted-foreground hover:text-sidebar-foreground transition-colors">
+                    <button
+                      onClick={() => setExpandedFolders((p) => ({ ...p, [folder.id]: !open }))}
+                      className="flex items-center gap-1 flex-1 min-w-0 cursor-pointer"
+                    >
+                      {open ? <ChevronDown className="size-3 shrink-0" /> : <ChevronRight className="size-3 shrink-0" />}
+                      <Folder className="size-3.5 shrink-0 opacity-70" />
+                      <span className="truncate text-[13px]">{folder.name}</span>
+                      <span className="ml-1 text-[10px] tabular-nums text-muted-foreground/40">{folderSessions.length}</span>
+                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="opacity-0 group-hover/fr:opacity-100 p-0.5 rounded-md hover:bg-sidebar-accent text-muted-foreground hover:text-sidebar-foreground transition-colors cursor-pointer">
+                          <MoreHorizontal className="size-3.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-36 p-1">
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => { setRenameFolderId(folder.id); setFolderNameValue(folder.name); }}
+                        >
+                          <Pencil className="h-4 w-4" />
+                          Renomear
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="cursor-pointer text-destructive focus:text-destructive"
+                          onClick={() => setFolderToDelete(folder)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Excluir
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  {open && (
+                    <div className="ml-3 border-l border-border/30 dark:border-border/20 pl-1">
+                      {folderSessions.length === 0 ? (
+                        <p className="px-3 py-1 text-[11px] text-muted-foreground/40">Vazia — mova sessões pelo menu “…”.</p>
+                      ) : (
+                        folderSessions.map((session) => (
+                          <SessionGroup key={session.id} session={session} {...sharedGroupProps} />
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         {isLoading ? (
           <div className="space-y-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -909,7 +1078,7 @@ export function SessionList({ projectId }: SessionListProps = {}) {
         ) : (
           <div className="space-y-px">
             {/* Pending sessions — need user input */}
-            {rootSessions.filter((s) => getPendingCount(s.id) > 0).map((session) => (
+            {rootSessions.filter((s) => !folderItems[s.id] && getPendingCount(s.id) > 0).map((session) => (
               <SessionGroup
                 key={session.id}
                 session={session}
@@ -919,7 +1088,7 @@ export function SessionList({ projectId }: SessionListProps = {}) {
 
             {/* Remaining sessions (paginated) */}
             {(() => {
-              const remaining = rootSessions.filter((s) => getPendingCount(s.id) === 0);
+              const remaining = rootSessions.filter((s) => !folderItems[s.id] && getPendingCount(s.id) === 0);
               const visible = remaining.slice(0, displayLimit);
               const hasMore = remaining.length > displayLimit;
               return (
@@ -1035,6 +1204,69 @@ export function SessionList({ projectId }: SessionListProps = {}) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Renomear pasta */}
+      <Dialog open={!!renameFolderId} onOpenChange={(open) => { if (!open) setRenameFolderId(null); }}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Renomear pasta</DialogTitle>
+            <DialogDescription>Dê um novo nome para esta pasta.</DialogDescription>
+          </DialogHeader>
+          <Input type="text"
+            value={folderNameValue}
+            onChange={(e) => setFolderNameValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && renameFolderId && folderNameValue.trim()) {
+                renameFolderMut.mutate({ id: renameFolderId, name: folderNameValue.trim() });
+                setRenameFolderId(null);
+              }
+            }}
+            autoFocus
+            placeholder="Nome da pasta..."
+          />
+          <DialogFooter>
+            <Button variant="ghost" size="sm" onClick={() => setRenameFolderId(null)} className="cursor-pointer">Cancelar</Button>
+            <Button
+              size="sm"
+              className="cursor-pointer"
+              onClick={() => {
+                if (renameFolderId && folderNameValue.trim()) {
+                  renameFolderMut.mutate({ id: renameFolderId, name: folderNameValue.trim() });
+                  setRenameFolderId(null);
+                }
+              }}
+            >
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Excluir pasta */}
+      <AlertDialog open={!!folderToDelete} onOpenChange={(open) => { if (!open) setFolderToDelete(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir pasta</AlertDialogTitle>
+            <AlertDialogDescription>
+              Excluir a pasta <span className="font-semibold">“{folderToDelete?.name}”</span>? As sessões dentro dela
+              <strong> não</strong> são apagadas — voltam para a lista.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="cursor-pointer">Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="cursor-pointer"
+              onClick={(e) => {
+                e.preventDefault();
+                if (folderToDelete) deleteFolderMut.mutate(folderToDelete.id);
+                setFolderToDelete(null);
+              }}
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
