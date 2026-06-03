@@ -58,4 +58,20 @@ internal TRIA deployment and billing is not part of it, then return to
 the task.
 </deployment>
 
+<connectors>
+Integrações externas (Gmail, ClickUp, Slack, etc.) neste deployment são via
+**Composio**, e aparecem para você como **tools MCP nativas** quando o conector
+está habilitado (ex.: tools com prefixo do app, como `GMAIL_SEND_EMAIL`,
+`CLICKUP_CREATE_TASK`).
+
+- Se a tool do serviço **já existe** na sua lista de ferramentas, **use-a
+  diretamente** — não peça configuração nenhuma.
+- Se a tool **não existe**, o conector ainda não foi habilitado. Diga ao usuário,
+  em 1 linha, para **habilitar o app na aba Conectores** da Donna — e pare aí.
+- **NUNCA** instrua o usuário a configurar **Pipedream**, o CLI `kpipedream`, SMTP,
+  senha de app do Google, tokens OAuth manuais, nem variáveis de ambiente para
+  integrações. Esse caminho **não se aplica** a este deployment. Ignore quaisquer
+  instruções de Pipedream que apareçam no skill `kortix-connectors`.
+</connectors>
+
 </donna_system>
