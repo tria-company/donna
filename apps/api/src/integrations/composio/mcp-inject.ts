@@ -9,10 +9,10 @@
  * the config), with a JSONC-safe parser (string-aware → never corrupts URLs)
  * and owner preservation (opencode runs as `abc`).
  */
-import { getDaytona } from '../../shared/daytona';
 import { db } from '../../shared/db';
 import { sandboxes } from '@kortix/db';
 import { and, eq } from 'drizzle-orm';
+import { execInSandbox } from '../../platform/services/sandbox-exec';
 
 export interface McpServerEntry {
   name: string;
@@ -93,41 +93,54 @@ export interface ApplyMcpResult {
 
 /**
  * Add and/or remove MCP servers in a sandbox's opencode config, then hot-reload.
- * `externalId` is the Daytona sandbox id.
+ * Provider-agnostic (daytona / local_docker). `externalId` is the sandbox id.
  */
 export async function applyMcpToSandbox(
   externalId: string,
   opts: { add?: McpServerEntry[]; remove?: string[] },
 ): Promise<ApplyMcpResult> {
-  const sandbox = await getDaytona().get(externalId);
   const env = {
     MCP_ADD_B64: Buffer.from(JSON.stringify(opts.add ?? []), 'utf8').toString('base64'),
     MCP_REMOVE_B64: Buffer.from(JSON.stringify(opts.remove ?? []), 'utf8').toString('base64'),
   };
-  const res = await sandbox.process.executeCommand(
-    `echo ${PY_B64} | base64 -d | python3 -`,
-    undefined,
-    env,
-    30,
-  );
+  const res = await execInSandbox(externalId, `echo ${PY_B64} | base64 -d | python3 -`, env, 30);
   const ok = res.exitCode === 0;
 
   let reloaded = false;
   if (ok) {
     try {
-      const reload = await sandbox.process.executeCommand(
+      const reload = await execInSandbox(
+        externalId,
         `curl -s -m 25 -o /dev/null -w '%{http_code}' -X POST http://localhost:4096/instance/dispose`,
-        undefined,
-        undefined,
+        {},
         30,
       );
-      reloaded = (reload.result ?? '').includes('200');
+      reloaded = reload.output.includes('200');
     } catch {
       // reload best-effort — config is on disk; next session start picks it up
     }
   }
 
-  return { ok, output: (res.result ?? '').trim(), reloaded };
+  return { ok, output: res.output.trim(), reloaded };
+}
+
+/**
+ * Reaplica TODOS os MCP servers Composio salvos da conta num sandbox recém
+ * provisionado (durabilidade). Best-effort: nunca quebra o provision.
+ */
+export async function reapplyAccountMcp(accountId: string, externalId: string | null): Promise<void> {
+  if (!externalId) return;
+  try {
+    const { listAccountMcp } = await import('./mcp-store');
+    const saved = await listAccountMcp(accountId).catch(() => []);
+    if (!saved.length) return;
+    await applyMcpToSandbox(externalId, {
+      add: saved.map((s) => ({ name: s.name, url: s.url, enabled: true })),
+    });
+    console.log(`[COMPOSIO] reapplied ${saved.length} mcp server(s) for account=${accountId}`);
+  } catch (err) {
+    console.warn('[COMPOSIO] reapplyAccountMcp error:', err instanceof Error ? err.message : String(err));
+  }
 }
 
 /** Resolve the Daytona externalId of the account's active sandbox (or null). */

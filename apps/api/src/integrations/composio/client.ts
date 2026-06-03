@@ -178,3 +178,28 @@ export async function createMcpServer(
   });
   return { id: created.id, mcpUrl: created.mcp_url ?? created.url ?? null };
 }
+
+/** Look up an existing MCP server by its (unique-per-project) name. */
+export async function findMcpServerByName(
+  name: string,
+): Promise<{ id: string; mcpUrl: string | null } | null> {
+  const raw = await composioFetch<any>(`/mcp/servers?limit=100`);
+  const found = (raw.items ?? []).find((s: any) => s.name === name);
+  if (!found) return null;
+  return { id: found.id, mcpUrl: found.mcp_url ?? found.url ?? null };
+}
+
+/**
+ * Idempotent: return the existing MCP server for `name` (Composio rejects
+ * duplicate names), else create it. Fixes the "MCP server already exists" error
+ * on re-enable.
+ */
+export async function findOrCreateMcpServer(
+  name: string,
+  authConfigId: string,
+  toolkitSlug: string,
+): Promise<{ id: string; mcpUrl: string | null }> {
+  const existing = await findMcpServerByName(name).catch(() => null);
+  if (existing?.mcpUrl) return existing;
+  return createMcpServer(name, authConfigId, toolkitSlug);
+}

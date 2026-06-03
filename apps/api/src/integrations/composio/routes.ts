@@ -17,6 +17,7 @@ import { supabaseAuth } from '../../middleware/auth';
 import { resolveAccountId } from '../../shared/resolve-account';
 import * as composio from './client';
 import { applyMcpToSandbox, getAccountSandboxExternalId } from './mcp-inject';
+import { upsertAccountMcp } from './mcp-store';
 
 export function createComposioRouter(): Hono {
   const router = new Hono();
@@ -96,28 +97,37 @@ export function createComposioRouter(): Hono {
       throw new HTTPException(400, { message: 'toolkit_slug and auth_config_id are required' });
     }
 
+    const mcpName = `composio-${parsed.data.toolkit_slug}`;
     let mcpUrl: string | null;
     try {
-      const mcp = await composio.createMcpServer(
+      // Idempotente: reaproveita a MCP server se já existir (Composio rejeita nome
+      // duplicado), senão cria. Resolve o erro "MCP server already exists" no re-enable.
+      const mcp = await composio.findOrCreateMcpServer(
         `donna-${accountId.slice(0, 8)}-${parsed.data.toolkit_slug}`,
         parsed.data.auth_config_id,
         parsed.data.toolkit_slug,
       );
       mcpUrl = mcp.mcpUrl;
     } catch (err) {
-      console.error('[COMPOSIO] createMcpServer failed:', err instanceof Error ? err.message : err);
+      console.error('[COMPOSIO] findOrCreateMcpServer failed:', err instanceof Error ? err.message : err);
       throw new HTTPException(502, { message: err instanceof Error ? err.message : 'Composio MCP create failed' });
     }
     if (!mcpUrl) throw new HTTPException(502, { message: 'Composio did not return an MCP url' });
 
+    // Persiste por conta → reinjetado em todo sandbox provisionado (durável).
+    await upsertAccountMcp(accountId, mcpName, mcpUrl, parsed.data.toolkit_slug).catch((err) =>
+      console.error('[COMPOSIO] upsertAccountMcp failed:', err instanceof Error ? err.message : err),
+    );
+
     const externalId = await getAccountSandboxExternalId(accountId);
     if (!externalId) {
-      return c.json({ success: true, mcp_url: mcpUrl, injected: false, message: 'No active sandbox; MCP applies on next provision' });
+      // Sem sandbox ativo: já está persistido → aplica no próximo provision.
+      return c.json({ success: true, mcp_url: mcpUrl, injected: false, persisted: true, message: 'Salvo; aplica no próximo sandbox' });
     }
     const result = await applyMcpToSandbox(externalId, {
-      add: [{ name: `composio-${parsed.data.toolkit_slug}`, url: mcpUrl, enabled: true }],
+      add: [{ name: mcpName, url: mcpUrl, enabled: true }],
     });
-    return c.json({ success: result.ok, mcp_url: mcpUrl, injected: result.ok, reloaded: result.reloaded });
+    return c.json({ success: result.ok, mcp_url: mcpUrl, injected: result.ok, persisted: true, reloaded: result.reloaded });
   });
 
   // ── Remove a connection ───────────────────────────────────────────────────

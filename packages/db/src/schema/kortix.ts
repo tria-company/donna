@@ -348,6 +348,25 @@ export const skillFavorites = kortixSchema.table(
   ],
 );
 
+// ─── Composio MCP servers (account-scoped, durable re-injection) ─────────────
+
+export const composioMcpServers = kortixSchema.table(
+  'composio_mcp_servers',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    accountId: uuid('account_id').notNull(),
+    name: text('name').notNull(),
+    url: text('url').notNull(),
+    toolkitSlug: text('toolkit_slug').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex('idx_composio_mcp_account_name').on(table.accountId, table.name),
+    index('idx_composio_mcp_account').on(table.accountId),
+  ],
+);
+
 // ─── Integrations (account-level OAuth connections) ─────────────────────────
 
 export const integrations = kortixSchema.table(

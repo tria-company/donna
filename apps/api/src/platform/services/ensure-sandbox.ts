@@ -19,6 +19,7 @@ import {
 } from './sandbox-init-state';
 import { registerCreator as ensureSandboxCreatorMember } from '../../teams';
 import { maybeCaptureSeed, restoreSeed } from './workspace-seed';
+import { reapplyAccountMcp } from '../../integrations/composio/mcp-inject';
 
 export interface EnsureSandboxResult {
   row: typeof sandboxes.$inferSelect;
@@ -77,12 +78,14 @@ export async function ensureSandbox(opts: {
       // Fresh sandbox from the pool → restore the account's custom opencode
       // project (agents/skills/commands) so they survive re-provisioning.
       await restoreSeed(accountId, claimed.row.externalId, claimed.row.provider);
+      await reapplyAccountMcp(accountId, claimed.row.externalId);
       return claimed;
     }
   }
 
   const provisioned = await provisionNewSandbox(accountId, userId, providerName, opts);
   await restoreSeed(accountId, provisioned.row.externalId, provisioned.row.provider);
+  await reapplyAccountMcp(accountId, provisioned.row.externalId);
   return provisioned;
 }
 
