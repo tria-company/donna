@@ -1493,10 +1493,7 @@ export function SidebarLeft({ ...props }: React.ComponentProps<typeof Sidebar>) 
               { label: 'Tunnel', icon: Cable, href: '/tunnel' },
             ]} />
 
-            <SidebarNavGroup icon={FolderKanban} label="Projetos" items={[
-              { label: 'Todos os projetos', icon: FolderKanban, href: '/projects' },
-              { label: 'Board', icon: ListTree, href: '/board' },
-            ]} />
+            {/* Donna: "Projetos" ocultado da sidebar a pedido. */}
 
             <SidebarNavLink icon={BookOpen} label="Conhecimento" href="/knowledge" />
 
