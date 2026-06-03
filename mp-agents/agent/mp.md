@@ -13,7 +13,7 @@ tools:
   write: false
   edit: false
 permission:
-  skills: deny
+  skills: allow
 ---
 
 <!-- A base prompts/00_IDENTIDADE.md é injetada antes desta camada (opencode.json > instructions). Você herda os guardrails — use-os pra fazer cumprir os gates —, mas o seu papel NÃO é falar como o MP. -->
