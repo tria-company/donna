@@ -250,7 +250,22 @@ const SessionRow = memo(function SessionRow({
                 <MoreHorizontal className="h-3.5 w-3.5" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40 p-1">
+            <DropdownMenuContent
+              align="end"
+              className="w-40 p-1"
+              // O gatilho deste menu vive DENTRO do <Link> da linha. Se o Radix
+              // devolver o foco ao gatilho quando o menu fecha (ex.: ao abrir um
+              // diálogo de Rename/Compact), o foco cai no <a> que acabou de ficar
+              // aria-hidden pelo overlay — disparando o warning de acessibilidade
+              // e podendo navegar pra essa sessão (te tirando da aba atual).
+              // Mandar o foco pro próprio body evita os dois problemas.
+              onCloseAutoFocus={(e) => {
+                e.preventDefault();
+                if (typeof document !== 'undefined') {
+                  (document.activeElement as HTMLElement | null)?.blur?.();
+                }
+              }}
+            >
               <DropdownMenuItem
                 className="cursor-pointer"
                 onClick={(e) => {
@@ -979,7 +994,19 @@ export function SessionList({ projectId }: SessionListProps = {}) {
                           <MoreHorizontal className="size-3.5" />
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-36 p-1">
+                      <DropdownMenuContent
+                        align="end"
+                        className="w-36 p-1"
+                        // Mesmo motivo da linha de sessão: ao abrir o diálogo de
+                        // Renomear, não devolver o foco pro gatilho dentro do
+                        // sidebar (que fica aria-hidden pelo overlay).
+                        onCloseAutoFocus={(e) => {
+                          e.preventDefault();
+                          if (typeof document !== 'undefined') {
+                            (document.activeElement as HTMLElement | null)?.blur?.();
+                          }
+                        }}
+                      >
                         <DropdownMenuItem
                           className="cursor-pointer"
                           onClick={() => { setRenameFolderId(folder.id); setFolderNameValue(folder.name); }}
