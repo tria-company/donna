@@ -17,7 +17,7 @@
  * preserving). NOTE: this lives in the volatile workspace config (ocx may reset
  * it) — re-applied on every access change; bake into the snapshot for permanence.
  */
-import { getDaytona } from '../shared/daytona';
+import { execInSandbox } from '../platform/services/sandbox-exec';
 import { getAccountSandboxExternalId } from '../integrations/composio/mcp-inject';
 import { getAgentsWithDocAccess } from './store';
 
@@ -137,31 +137,25 @@ export async function applyKnowledgeToSandbox(accountId: string): Promise<ApplyK
   if (!externalId) return { ok: true, applied: false, output: 'no active sandbox', reloaded: false };
 
   const agents = await getAgentsWithDocAccess(accountId);
-  const sandbox = await getDaytona().get(externalId);
   const env = { KB_AGENTS_B64: Buffer.from(JSON.stringify(agents), 'utf8').toString('base64') };
 
-  const res = await sandbox.process.executeCommand(
-    `echo ${PY_B64} | base64 -d | python3 -`,
-    undefined,
-    env,
-    30,
-  );
+  const res = await execInSandbox(externalId, `echo ${PY_B64} | base64 -d | python3 -`, env, 30);
   const ok = res.exitCode === 0;
 
   let reloaded = false;
   if (ok) {
     try {
-      const reload = await sandbox.process.executeCommand(
+      const reload = await execInSandbox(
+        externalId,
         `curl -s -m 25 -o /dev/null -w '%{http_code}' -X POST http://localhost:4096/instance/dispose`,
-        undefined,
-        undefined,
+        {},
         30,
       );
-      reloaded = (reload.result ?? '').includes('200');
+      reloaded = reload.output.includes('200');
     } catch {
       // best-effort — config is on disk; next session start picks it up
     }
   }
 
-  return { ok, applied: true, output: (res.result ?? '').trim(), reloaded };
+  return { ok, applied: true, output: res.output.trim(), reloaded };
 }
