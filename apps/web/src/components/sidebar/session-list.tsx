@@ -88,6 +88,11 @@ import { classifySession, isSidebarHidden } from '@/lib/kortix/session-category'
 import { useTriggers } from '@/hooks/scheduled-tasks';
 import Link from 'next/link';
 
+// MIME usado no arrasta-e-solta de sessões pra dentro/fora das pastas.
+// Mesmo padrão do explorador de arquivos (file-tree-item.tsx): drag nativo
+// HTML5 com um tipo próprio, pra os alvos de drop ignorarem qualquer outro drag.
+const SESSION_DRAG_MIME = 'application/x-donna-session-id';
+
 // ============================================================================
 // Session Row — flat, uniform layout for both parent and child sessions
 // ============================================================================
@@ -144,6 +149,14 @@ const SessionRow = memo(function SessionRow({
       href={`/sessions/${session.id}`}
       onClick={(e) => onClick(e, session.id)}
       className="block"
+      draggable
+      onDragStart={(e) => {
+        // Carrega o id da sessão; o `text/plain` evita que o navegador use a
+        // URL do <a> como payload do arrasto.
+        e.dataTransfer.setData(SESSION_DRAG_MIME, session.id);
+        e.dataTransfer.setData('text/plain', displayTitle);
+        e.dataTransfer.effectAllowed = 'move';
+      }}
     >
       <div
         className={cn(
@@ -532,6 +545,10 @@ export function SessionList({ projectId }: SessionListProps = {}) {
   const deleteFolderMut = useDeleteSessionFolder();
   const moveSessionMut = useMoveSessionToFolder();
   const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({});
+  // Arrasta-e-solta: qual pasta está sob o cursor (highlight) e se a área
+  // principal (lista sem pasta) é o alvo atual — pra remover da pasta.
+  const [dragOverFolderId, setDragOverFolderId] = useState<string | null>(null);
+  const [dragOverRoot, setDragOverRoot] = useState(false);
   const [folderToDelete, setFolderToDelete] = useState<SessionFolder | null>(null);
   const [renameFolderId, setRenameFolderId] = useState<string | null>(null);
   const [folderNameValue, setFolderNameValue] = useState('');
@@ -978,7 +995,38 @@ export function SessionList({ projectId }: SessionListProps = {}) {
               const folderSessions = rootSessions.filter((s) => folderItems[s.id] === folder.id);
               return (
                 <div key={folder.id} className="mb-0.5">
-                  <div className="group/fr flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-sidebar-accent text-muted-foreground hover:text-sidebar-foreground transition-colors">
+                  <div
+                    className={cn(
+                      'group/fr flex items-center gap-1 px-2 py-1 rounded-lg text-muted-foreground hover:text-sidebar-foreground transition-colors',
+                      dragOverFolderId === folder.id
+                        ? 'bg-sidebar-accent text-sidebar-foreground ring-1 ring-primary/40'
+                        : 'hover:bg-sidebar-accent',
+                    )}
+                    onDragOver={(e) => {
+                      if (!e.dataTransfer.types.includes(SESSION_DRAG_MIME)) return;
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = 'move';
+                      if (dragOverFolderId !== folder.id) setDragOverFolderId(folder.id);
+                    }}
+                    onDragLeave={(e) => {
+                      // Só limpa quando o cursor sai do cabeçalho inteiro (ignora
+                      // a troca entre os filhos: botão, contador, menu).
+                      if (!e.currentTarget.contains(e.relatedTarget as Node | null)) {
+                        setDragOverFolderId((id) => (id === folder.id ? null : id));
+                      }
+                    }}
+                    onDrop={(e) => {
+                      if (!e.dataTransfer.types.includes(SESSION_DRAG_MIME)) return;
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setDragOverFolderId(null);
+                      const sid = e.dataTransfer.getData(SESSION_DRAG_MIME);
+                      if (sid && folderItems[sid] !== folder.id) {
+                        handleMoveSession(sid, folder.id);
+                        setExpandedFolders((p) => ({ ...p, [folder.id]: true }));
+                      }
+                    }}
+                  >
                     <button
                       onClick={() => setExpandedFolders((p) => ({ ...p, [folder.id]: !open }))}
                       className="flex items-center gap-1 flex-1 min-w-0 cursor-pointer"
@@ -1113,7 +1161,29 @@ export function SessionList({ projectId }: SessionListProps = {}) {
             <p className="text-xs text-muted-foreground mt-1">Start a new session to get going</p>
           </div>
         ) : (
-          <div className="space-y-px">
+          <div
+            className={cn(
+              'space-y-px rounded-lg transition-colors',
+              dragOverRoot && 'ring-1 ring-primary/30 bg-sidebar-accent/30',
+            )}
+            // Soltar uma sessão aqui (fora de qualquer pasta) a remove da pasta.
+            onDragOver={(e) => {
+              if (!e.dataTransfer.types.includes(SESSION_DRAG_MIME)) return;
+              e.preventDefault();
+              e.dataTransfer.dropEffect = 'move';
+              if (!dragOverRoot) setDragOverRoot(true);
+            }}
+            onDragLeave={(e) => {
+              if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDragOverRoot(false);
+            }}
+            onDrop={(e) => {
+              if (!e.dataTransfer.types.includes(SESSION_DRAG_MIME)) return;
+              e.preventDefault();
+              setDragOverRoot(false);
+              const sid = e.dataTransfer.getData(SESSION_DRAG_MIME);
+              if (sid && folderItems[sid]) handleMoveSession(sid, null);
+            }}
+          >
             {/* Pending sessions — need user input */}
             {rootSessions.filter((s) => !folderItems[s.id] && getPendingCount(s.id) > 0).map((session) => (
               <SessionGroup

@@ -330,7 +330,18 @@ export async function signInWithPassword(prevState: any, formData: FormData) {
   // Determine if new user (for analytics)
   const isNewUser = data.user && (Date.now() - new Date(data.user.created_at).getTime()) < 60000;
   const authEvent = isNewUser ? 'signup' : 'login';
-  
+
+  // Primeiro acesso: contas criadas pelo admin vêm com a senha padrão e a flag
+  // must_change_password. Aí mandamos a pessoa pra tela de definir a própria
+  // senha (sugerida, pode pular), carregando o destino final.
+  const mustChangePassword = !!(data.user?.user_metadata as { must_change_password?: boolean } | undefined)?.must_change_password;
+  if (mustChangePassword) {
+    return {
+      success: true,
+      redirectTo: `/auth/set-password?returnUrl=${encodeURIComponent(returnUrl)}`,
+    };
+  }
+
   // Return success — let the client redirect after auth state hydrates.
   const finalReturnUrl = returnUrl;
   const redirectUrl = new URL(finalReturnUrl, 'http://localhost');
@@ -341,6 +352,45 @@ export async function signInWithPassword(prevState: any, formData: FormData) {
     success: true,
     redirectTo: `${redirectUrl.pathname}${redirectUrl.search}`,
   };
+}
+
+/**
+ * Primeiro acesso — a pessoa define a própria senha (substituindo a padrão) e
+ * limpamos a flag must_change_password. Requer sessão ativa (já logou com a
+ * senha padrão antes de cair aqui).
+ */
+export async function setInitialPassword(prevState: any, formData: FormData) {
+  const password = formData.get('password') as string;
+  const confirmPassword = formData.get('confirmPassword') as string;
+
+  if (!password || password.length < 6) {
+    return { message: 'A senha precisa ter pelo menos 6 caracteres' };
+  }
+  if (password !== confirmPassword) {
+    return { message: 'As senhas não conferem' };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({
+    password,
+    data: { must_change_password: false },
+  });
+
+  if (error) {
+    return { message: error.message || 'Não foi possível atualizar a senha' };
+  }
+
+  return { success: true };
+}
+
+/**
+ * Primeiro acesso — pessoa optou por pular a troca. Só limpamos a flag pra não
+ * sugerir de novo; ela segue com a senha padrão até decidir trocar.
+ */
+export async function skipInitialPassword() {
+  const supabase = await createClient();
+  await supabase.auth.updateUser({ data: { must_change_password: false } });
+  return { success: true };
 }
 
 export async function signUpWithPassword(prevState: any, formData: FormData) {

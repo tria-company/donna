@@ -161,7 +161,9 @@ function LoginContent() {
   const isExpired = searchParams.get('expired') === 'true';
   const expiredEmail = searchParams.get('email') || '';
   const referralCodeParam = searchParams.get('ref') || '';
-  const isPasswordMode = searchParams.get('auth') === 'password';
+  // Donna: login é só por senha (admin provisiona a conta com senha padrão).
+  // Sem magic-link nem Google — a tela sempre mostra o formulário de senha.
+  const isPasswordMode = true;
   const t = useTranslations('auth');
 
   const [phase, setPhase] = useState<AuthPhase>('lock');

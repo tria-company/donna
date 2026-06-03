@@ -7,8 +7,36 @@ import { areSignupsEnabled, canSignUp, refreshAccessControlCache } from '../shar
 import { config } from '../config';
 import { supabaseAuth } from '../middleware/auth';
 import { requireAdmin } from '../middleware/require-admin';
+import { getSupabase } from '../shared/supabase';
 
 export const accessControlApp = new Hono();
+
+// Senha padrão com que todo usuário liberado é criado. No primeiro acesso a
+// pessoa é convidada a trocá-la (flag user_metadata.must_change_password).
+const DEFAULT_USER_PASSWORD = 'Tria@2026';
+
+// Cria a conta no Supabase Auth já com a senha padrão. Idempotente: se o
+// usuário já existe, não falha (a liberação na allowlist basta pra ele entrar).
+// Retorna 'created' | 'exists' | 'error' só pra feedback no painel.
+async function provisionUser(email: string): Promise<'created' | 'exists' | 'error'> {
+  try {
+    const supa = getSupabase();
+    const { error } = await supa.auth.admin.createUser({
+      email,
+      password: DEFAULT_USER_PASSWORD,
+      email_confirm: true,
+      user_metadata: { must_change_password: true },
+    });
+    if (!error) return 'created';
+    const msg = (error.message || '').toLowerCase();
+    if (msg.includes('already') || (error as { status?: number }).status === 422) return 'exists';
+    console.error('[access] provisionUser failed:', error.message);
+    return 'error';
+  } catch (e) {
+    console.error('[access] provisionUser threw:', e);
+    return 'error';
+  }
+}
 
 async function userExistsInAuth(email: string): Promise<boolean> {
   if (!config.DATABASE_URL) return false;
@@ -94,7 +122,11 @@ accessControlApp.post('/admin/allowlist', async (c) => {
     .onConflictDoNothing()
     .returning();
   await refreshAccessControlCache();
-  return c.json({ success: true, entry: entry ?? { entryType, value } });
+  // Pra emails, já cria a conta com a senha padrão (domínios continuam só
+  // liberando o cadastro). Não bloqueia: se a criação falhar, a allowlist
+  // ainda garante o acesso.
+  const provisioned = entryType === 'email' ? await provisionUser(value) : null;
+  return c.json({ success: true, entry: entry ?? { entryType, value }, provisioned });
 });
 
 // Revoke access: remove an allowlist entry
@@ -121,6 +153,7 @@ accessControlApp.post('/admin/requests/:id/approve', async (c) => {
   if (req?.email) {
     await db.insert(accessAllowlist).values({ entryType: 'email', value: req.email.toLowerCase(), note: 'approved request' }).onConflictDoNothing();
     await refreshAccessControlCache();
+    await provisionUser(req.email.toLowerCase());
   }
   return c.json({ success: true });
 });

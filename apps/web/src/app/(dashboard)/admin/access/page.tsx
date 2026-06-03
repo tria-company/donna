@@ -50,8 +50,14 @@ export default function AdminAccessPage() {
       return;
     }
     try {
-      await addEmail.mutateAsync({ value, entryType: 'email' });
-      toast.success(`Acesso liberado para ${value}`);
+      const res: any = await addEmail.mutateAsync({ value, entryType: 'email' });
+      if (res?.provisioned === 'exists') {
+        toast.success(`Acesso liberado para ${value}`, { description: 'A conta já existia — a senha não foi alterada.' });
+      } else if (res?.provisioned === 'error') {
+        toast.warning(`Email liberado, mas a conta não foi criada`, { description: 'A pessoa ainda pode entrar; tente reabrir o acesso depois.' });
+      } else {
+        toast.success(`Acesso liberado para ${value}`, { description: 'Conta criada com a senha padrão Tria@2026.' });
+      }
       setEmail('');
     } catch (e: any) {
       toast.error(e?.message || 'Falha ao adicionar email');
@@ -63,7 +69,8 @@ export default function AdminAccessPage() {
       <div>
         <h1 className="text-2xl font-semibold text-primary">Acesso de usuários</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Libere o acesso cadastrando o email. Só emails na lista conseguem entrar.
+          Libere o acesso cadastrando o email. A conta é criada com a senha padrão{' '}
+          <span className="font-medium text-foreground/80">Tria@2026</span> — no primeiro acesso a pessoa define a própria senha.
         </p>
       </div>
 
