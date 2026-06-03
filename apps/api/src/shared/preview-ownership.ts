@@ -13,6 +13,7 @@
  */
 
 import { db } from './db';
+import { config } from '../config';
 import { resolveAccountId } from './resolve-account';
 import {
   canAccessPreviewTarget,
@@ -40,6 +41,23 @@ function cacheKey(previewSandboxId: string, userId: string): string {
 }
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * local_docker roda UM container compartilhado (SANDBOX_CONTAINER_NAME). O gate
+ * de propriedade por conta (1 sandbox = 1 conta) não se aplica a ele: qualquer
+ * usuário AUTENTICADO pode alcançá-lo. A autenticação em si continua exigida no
+ * combinedAuth — este helper só é consultado depois de um token válido, então
+ * isto libera a *autorização* (dono), não a *autenticação* (login).
+ *
+ * Sem isto, em produção (host público, não-localhost) o gate multi-tenant nega
+ * o acesso ao container local e o proxy responde 403.
+ */
+function isSharedLocalBridge(previewSandboxId: string): boolean {
+  return (
+    config.isLocalDockerEnabled() &&
+    previewSandboxId === config.SANDBOX_CONTAINER_NAME
+  );
+}
 
 /**
  * Resolve the REAL sandbox uuid + account id from the `previewSandboxId`,
@@ -176,6 +194,8 @@ export async function canAccessPreviewSandbox(input: {
   userId?: string;
   accountId?: string;
 }): Promise<boolean> {
+  // Container local compartilhado: libera pra qualquer caller já autenticado.
+  if (isSharedLocalBridge(input.previewSandboxId)) return true;
   if (!input.userId) {
     if (!input.accountId) return false;
     const ref = await resolveSandboxRef(input.previewSandboxId);
